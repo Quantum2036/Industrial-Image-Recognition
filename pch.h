@@ -5,7 +5,7 @@
 using namespace cv;
 
 #define DATAFOLDER	"C:\\量子泡沫\\Study\\数字图像处理\\data\\"
-
+#define DESKTOP		"C:\\Users\\29462\\Desktop\\"
 
 #define ON_MOUSE_CALLBACK	true
 #define OFF_MOUSE_CALLBACK	false

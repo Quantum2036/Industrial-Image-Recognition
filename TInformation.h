@@ -57,15 +57,23 @@ private:
 	void CalRectMat(const Mat* pImg, FList tlist);
 
 	//计算矩形外框
-	void CalRectBox(void);
+	void CalRectBox(const Mat* pImg);
 
-	//使rect中数据始终大于0
-	void normalizeRect(Rect& rect)
+	//使rect中数据始终位于图像边界内
+	void normalizeRect(const Mat* pImg, Rect& rect)
 	{
-		rect.x = rect.x < 0 ? -rect.x : rect.x;
-		rect.y = rect.y < 0 ? -rect.y : rect.y;
-		rect.width = rect.width < 0 ? -rect.width : rect.width;
-		rect.height = rect.height < 0 ? -rect.height : rect.height;
+		if (rect.x < 0) {
+			rect.x = 0;
+		}
+		if (rect.y < 0) {
+			rect.y = 0;
+		}
+		if (rect.x + rect.width > pImg->cols) {
+			rect.width = pImg->cols - rect.x;
+		}
+		if (rect.y + rect.height > pImg->rows) {
+			rect.height = pImg->rows - rect.y;
+		}
 	}
 
 	//将图像坐标变换到标识矩阵坐标

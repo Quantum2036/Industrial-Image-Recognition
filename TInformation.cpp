@@ -20,7 +20,7 @@ TInformation::~TInformation()
 TInformation::TInformation(const Mat* pImg, FList& tlist, FList& plist)
 {
 	rect_Target = plist.GetRect();
-	CalRectBox();
+	CalRectBox(pImg);
 	CalRectMat(pImg, tlist);
 
 #if DEBUG_PRINTF
@@ -65,14 +65,14 @@ void TInformation::CalRectMat(const Mat* pImg, FList tlist)
 	}
 }
 
-void TInformation::CalRectBox(void)
+void TInformation::CalRectBox(const Mat* pImg)
 {
 	rect_Box.x		= rect_Target.x - MIN_SCAN_GAP;
 	rect_Box.y		= rect_Target.y - MIN_SCAN_GAP;
 	rect_Box.width	= rect_Target.width + 2 * MIN_SCAN_GAP;
 	rect_Box.height = rect_Target.height + 2 * MIN_SCAN_GAP;
 	
-	normalizeRect(rect_Box);
+	normalizeRect(pImg, rect_Box);
 }
 
 

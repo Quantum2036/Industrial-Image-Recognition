@@ -5,26 +5,28 @@
 int main(int argc, char** argv) {
 
 	Mat bgImg = imread(DATAFOLDER"pattern.pgm", 0);
-	Mat tImg  = imread(DATAFOLDER"test2.pgm", 0);
+	Mat tImg  = imread(DATAFOLDER"test.pgm", 0);
+	TClassifier	theClassifier;
 
-	//Mat bgImg = imread(DATAFOLDER"bg.jpg");
-	//Mat tImg = imread(DATAFOLDER"item.jpg");
-	//resize(bgImg, bgImg, Size(), 0.25, 0.25);
-	//resize(tImg, tImg, Size(), 0.25, 0.25);
+	theClassifier.LoadClassifier(DATAFOLDER"Target_Classifier.txt");
+	//theClassifier.PrintTClassifier_d();
 
-	//TClassifier	theClassifier;
+	//训练得到分类器
+	//Trainer tran_1(bgImg, DATAFOLDER"nut", "pgm");
+	//tran_1.SaveTClassifier("nut");
+	//
+	//Trainer tran_2(bgImg, DATAFOLDER"ring", "pgm");
+	//tran_2.SaveTClassifier("ring");
+	//
+	//Trainer tran_3(bgImg, DATAFOLDER"screw", "pgm");
+	//tran_3.SaveTClassifier("screw");
 
-	/*theClassifier.LoadClassifier(DATAFOLDER"Target_Classifier.txt");
-	theClassifier.PrintTClassifier_d();*/
-
-	Trainer tran(bgImg, DATAFOLDER"nut", "pgm");
-	/*CVApp theApp;
+	CVApp theApp;
 	theApp.AddBackground(bgImg);
 	theApp.AddTestImg(tImg);
+	theApp.AddClassifier(theClassifier);
 	theApp.ShowTatget();
 	theApp.ShowAll_d();
-
-	theApp.AddClassifier(theClassifier);*/
 
 	return 0;
 }

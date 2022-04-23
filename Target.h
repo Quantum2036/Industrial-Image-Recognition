@@ -14,6 +14,7 @@ public:
 	~Target();
 
 	Target& operator=(const Target& tTemp);
+	friend class TargetDisplay;
 
 /*************数据*************/
 public:
@@ -34,11 +35,6 @@ private:
 	//	否则为构造时用的图像
 	Mat* canvas;
 
-	//分类器数据，存放不同目标类型的标识特征
-	//	由App类中使用函数手动创建
-	//	否则将根据图像创建新的分类器
-	TClassifier* TCdata;
-
 	//目标内部的所有点
 	FList tlist;
 	
@@ -51,25 +47,13 @@ private:
 	//目标状态
 	TargetState TState;
 
-	//目标类型名称
-	String TClass;
-
 /*************方法*************/
 public:
-
-	//手动设置画布
-	void SetCanvas(Mat* pImgCanvas);
 
 	//返回目标的状态信息
 	TargetState GetTargetState(void) {
 		return TState;
 	}
-
-	//用颜色填充目标的内部和边界
-	void DrawColor(uchar color_inside = COLOR_INSIDE_8UC1, uchar color_peripheral = COLOR_PERIPHERAL_8UC1);
-
-	//用绿色方框在画布上标记出目标，并为其添加文字
-	void DrawBox(Scalar color_box = Scalar(0, 255, 0), Scalar color_text = Scalar(0, 0, 255));
 
 private:
 
@@ -78,9 +62,6 @@ private:
 
 	//判断目标是否超出图像
 	bool IsOutImg(void);
-
-	//对Target类中的图像应用颜色更改
-	void SetColor(FList& fl, uchar color);
 
 };
 

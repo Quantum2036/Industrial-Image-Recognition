@@ -10,7 +10,6 @@ Target::Target()
 {
 	pImg	= nullptr;
 	canvas	= nullptr;
-	TCdata	= nullptr;
 
 	//plist;
 	//tlist;
@@ -26,7 +25,6 @@ Target::Target(const Target& tTemp)
 {
 	pImg	= tTemp.pImg;
 	canvas	= tTemp.canvas;
-	TCdata	= tTemp.TCdata;
 
 	plist	= tTemp.plist;
 	tlist	= tTemp.tlist;
@@ -42,7 +40,6 @@ Target::Target(Mat& Img, Point seed)
 {
 	pImg = &Img;
 	canvas = nullptr;
-	TCdata = nullptr;
 	Isize = Rect(0, 0, pImg->cols, pImg->rows);
 
 	Grow(seed);
@@ -56,9 +53,6 @@ Target::Target(Mat& Img, Point seed)
 		TFea	= TFeature(tlist, plist);
 		TState	= IsOutImg() ? TargetState::TS_OutImage : TargetState::TS_Normal;
 
-		if (TState == TargetState::TS_Normal) {
-			
-		}
 	}
 	else
 	{
@@ -113,70 +107,11 @@ bool Target::IsOutImg(void)
 	Rect rect = TInfo.getRectTarget();
 	if (rect.x == 0 ||
 		rect.y == 0 ||
-		rect.x + rect.width == Isize.width ||
-		rect.y + rect.height == Isize.height) {
+		rect.x + rect.width + 1 == Isize.width ||
+		rect.y + rect.height + 1 == Isize.height) {
 		return true;
 	}
 	else {
 		return false;
 	}
-}
-
-void Target::SetCanvas(Mat* pImgCanvas)
-{
-	if (pImgCanvas->size() != pImg->size()) {
-		fprintf_s(stderr, "WARNING: 画布图像与测试图像尺寸不一致. \n");
-		canvas = pImg;
-		return;
-	}
-
-	int nChannel = pImgCanvas->channels();
-
-	if (nChannel == 1) {	//当画布是灰度图时转换为彩色
-		cvtColor(*pImgCanvas, *pImgCanvas, COLOR_GRAY2BGR);
-		canvas = pImgCanvas;
-	}
-	else if (nChannel == 3) {
-		canvas = pImgCanvas;
-	}
-	else {
-		canvas = pImg;
-	}
-}
-
-void Target::DrawColor(uchar color_inside, uchar color_peripheral)
-{
-	if (!canvas) {
-		canvas = pImg;
-	}
-
-	SetColor(tlist, color_inside);
-	SetColor(plist, color_peripheral);
-}
-
-void Target::SetColor(FList& fl, uchar color)
-{
-	auto it = fl.begin();
-	auto it_end = fl.end();
-
-	for (; it != it_end; it++) {
-		canvas->at<Vec3b>(*it)[0] = color;
-		canvas->at<Vec3b>(*it)[1] = color;
-		canvas->at<Vec3b>(*it)[2] = color;
-	}
-}
-
-void Target::DrawBox(Scalar color_box, Scalar color_text)
-{
-	if (!canvas) {
-		canvas = pImg;
-	}
-
-	Rect box = TInfo.getRectBox();
-	rectangle(*canvas, box, color_box);
-	putText(*canvas,
-		strTargetClass[(int)TState],
-		Point(box.x, box.y - 2),
-		FONT_HERSHEY_PLAIN, 0.8,
-		color_text);
 }

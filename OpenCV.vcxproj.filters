@@ -42,6 +42,9 @@
     <ClCompile Include="Trainer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="TargetDisplay.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Event.h">
@@ -69,6 +72,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Trainer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TargetDisplay.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

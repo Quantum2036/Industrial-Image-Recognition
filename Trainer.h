@@ -21,24 +21,30 @@ private:
 	String target_Name;
 
 	//所有扫到的目标的特征
-	std::vector<feature> feature_Data;
+	TClassifier feature_Data;
+
+	//所有扫到的目标的特征
+	//std::vector<feature> feature_Data;
+
+	//分类器
+	TClassifier target_Class;
 
 //	方法
 public:
 
-	//将数据保存到指定的文件夹
-	void SaveData_d(void);
+	//保存分类器文件
+	void SaveTClassifier(const char* Target_Name);
 
 private:
 	
+	//将数据保存到指定的文件夹
+	void SaveData_d(String& Save_Full_Path, std::vector<feature>& feaIn);
+
 	//为字符串加上字母序号
 	String StrAddChar(const String& str, size_t length);
 
-	//将数据写入指定文件
-	void FileSave(String name, std::vector<feature>& feaIn);
-
 	//将一幅图像中所有目标数据载入 feature_Data
-	void PushFeature(std::vector<Target>& target);
+	void PushFeatureData(std::vector<Target>& target, String fileName);
 
 	//读取文件夹下所有拓展名为type的文件
 	//	若type为空字符串，则读取所有文件
@@ -50,5 +56,14 @@ private:
 
 	//分析
 	void Analysis(void);
+
+	//初步筛选，errlimit为分类误差，建议[20-30]
+	void Sieve_1(double errlimit = 0.30);
+
+	//二次筛选
+	void Sieve_2(double errlimit = 0.15);
+
+	//由一组特征计算其平均特征值
+	feature getAverageFeature(const std::vector<feature>& feas);
 };
 

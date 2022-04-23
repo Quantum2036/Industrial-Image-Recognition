@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CVApp.cpp" />
+    <ClCompile Include="TargetDisplay.cpp" />
     <ClCompile Include="TClassifier.cpp" />
     <ClCompile Include="TFeature.cpp" />
     <ClCompile Include="Event.cpp" />
@@ -154,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CVApp.h" />
+    <ClInclude Include="TargetDisplay.h" />
     <ClInclude Include="TClassifier.h" />
     <ClInclude Include="TFeature.h" />
     <ClInclude Include="Event.h" />

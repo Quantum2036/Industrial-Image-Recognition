@@ -42,7 +42,8 @@ TClassifier& TClassifier::operator=(const TClassifier& tc)
 
 void TClassifier::SaveClassifier(void)
 {
-	FILE* fp = OpenFile(DATAFOLDER"Target_Classifier.txt", "a+");
+	LoadClassifier(DATAFOLDER"Target_Classifier.txt");
+	FILE* fp = OpenFile(DATAFOLDER"Target_Classifier.txt", "w+");
 
 	fprintf_s(fp, "%llu\n\n", count);
 	for (size_t i = 0; i < count; i++)
@@ -55,24 +56,30 @@ void TClassifier::SaveClassifier(void)
 
 void TClassifier::LoadClassifier(const char* filePath)
 {
-	FILE* fp = OpenFile(filePath, "r");
-
-	fscanf_s(fp, "%llu\n\n", &count);
-	for (size_t i = 0; i < count; i++)
-	{
-		ReadStructure(fp);
+	FILE* fp = nullptr;
+	fopen_s(&fp, filePath, "r");
+	if (!fp) {
+		fprintf_s(stderr, "未找到分类器文件. \n");
 	}
+	else {
+		size_t length = 0;
+		fscanf_s(fp, "%llu\n\n", &length);
+		for (size_t i = 0; i < length; i++)
+		{
+			ReadStructure(fp);
+		}
 
-	fclose(fp);
+		fclose(fp);
+	}
 }
 
-void TClassifier::AddNewClass(const feature& TFea, const String& name)
+void TClassifier::AddNewClass(feature TFea, String name)
 {
 	if (IsExistName(name)) {
 		fprintf_s(stderr, "WARNING: 已存在命名\t[%s]\n", name.c_str());
 		return;
 	}
-	else if (IsExistTFeature(TFea)) {
+	else if (IsExistTFeature(TFea, 0.10)) {
 		fprintf_s(stderr, "WARNING: 已存在记录的特征标识\t[%s]\n", getTC(TFea).c_str());
 		return;
 	}
@@ -85,17 +92,17 @@ void TClassifier::AddNewClass(const feature& TFea, const String& name)
 String TClassifier::getTC(const feature& TFea)
 {
 	for (size_t i = 0; i < count; i++) {
-		if (IsFeatureEqual(TFea, data.at(i), 0.05)) {
+		if (IsFeatureEqual(TFea, data.at(i), 0.14)) {
 			return Tname.at(i);
 		}
 	}
-	return String("TS_Null");
+	return String("unknown");
 }
 
-bool TClassifier::IsExistTFeature(const feature& TFea)
+bool TClassifier::IsExistTFeature(const feature& TFea, double errlimit)
 {
 	for (int i = 0; i < count; i++) {
-		if (IsFeatureEqual(TFea, data.at(i), 0.05)) {
+		if (IsFeatureEqual(TFea, data.at(i), errlimit)) {
 			return true;
 		}
 	}
@@ -106,7 +113,7 @@ bool TClassifier::IsExistTFeature(const feature& TFea)
 bool TClassifier::IsExistName(const String& name)
 {
 	for (int i = 0; i < count; i++)	{
-		if (name == Tname.at(i)) {
+		if (!name.compare(Tname.at(i))) {
 			return true;
 		}
 	}
@@ -123,34 +130,34 @@ void TClassifier::PrintTClassifier_d(void)
 	}
 }
 
-bool TClassifier::IsFeatureEqual(const feature& TFea_in, const feature& TFea_std, double STDERR)
+bool TClassifier::IsFeatureEqual(const feature& TFea_in, const feature& TFea_std, double errlimit)
 {
 	double	err = 0.0;
 	int		flag = 0;
 
 	err = fabs((double)TFea_in.size - (double)TFea_std.size) / (double)TFea_std.size;
-	err < STDERR ? flag++ : flag -= 2;
+	err < errlimit ? flag++ : flag -= 2;
 
 	err = fabs((double)TFea_in.Peripheral - (double)TFea_std.Peripheral) / (double)TFea_std.Peripheral;
-	err < STDERR ? flag++ : flag -= 2;
+	err < errlimit ? flag++ : flag -= 2;
 
 	err = fabs((double)TFea_in.MER.width - (double)TFea_std.MER.width) / (double)TFea_std.MER.width;
-	err < STDERR ? flag++ : flag -= 2;
+	err < errlimit ? flag++ : flag -= 2;
 
 	err = fabs((double)TFea_in.MER.height - (double)TFea_std.MER.height) / (double)TFea_std.MER.height;
-	err < STDERR ? flag++ : flag -= 2;
+	err < errlimit ? flag++ : flag -= 2;
 
 	err = fabs(TFea_in.corners - TFea_std.corners);
 	err < 2.0 ? flag++ : flag -= 2;
 
 	err = fabs(TFea_in.Rectangularity - TFea_std.Rectangularity) / TFea_std.Rectangularity;
-	err < STDERR ? flag++ : flag -= 2;
+	err < errlimit ? flag++ : flag -= 2;
 
 	err = fabs(TFea_in.consistency - TFea_std.consistency) / TFea_std.consistency;
-	err < STDERR ? flag++ : flag -= 2;
+	err < errlimit ? flag++ : flag -= 2;
 
 	err = fabs(TFea_in.eccentricity - TFea_std.eccentricity) / TFea_std.eccentricity;
-	err < STDERR ? flag++ : flag -= 2;
+	err < errlimit ? flag++ : flag -= 2;
 
 	return flag > 0 ? true : false;
 }
@@ -170,9 +177,9 @@ FILE* TClassifier::OpenFile(const char* ClassifierPath, const char* mode)
 void TClassifier::ReadStructure(FILE* fp)
 {
 	feature thisTFea;
-	char tname[256];
-	char cname[256];
-	
+	char tname[256] = {0};
+	char cname[256] = {0};
+
 	fscanf_s(fp, "\" %s \" = {\n", tname, 256);
 	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.size);
 	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.Peripheral);
@@ -184,8 +191,7 @@ void TClassifier::ReadStructure(FILE* fp)
 	fscanf_s(fp, "\t%s = %lf;\n", cname, 256, &thisTFea.eccentricity);
 	fscanf_s(fp, "}\n\n");
 
-	data.emplace_back(thisTFea);
-	Tname.emplace_back(tname);
+	AddNewClass(thisTFea, tname);
 }
 
 void TClassifier::WriteStructure(FILE* fp, size_t count)

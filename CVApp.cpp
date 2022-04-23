@@ -1,4 +1,5 @@
 #include "CVApp.h"
+#include "TargetDisplay.h"
 #include "Event.h"
 #include <time.h>
 #include <io.h>
@@ -33,7 +34,7 @@ CVApp::CVApp(Mat& test, Mat& background)
 	AddTestImg(test);
 }
 
-//构造1
+//	拆分构造函数
 
 void CVApp::AddTestImg(Mat& tImg)
 {
@@ -92,29 +93,6 @@ void CVApp::PostProcessing(void)
 	bgImgs.clear();
 #endif
 
-
-	TickMeter tk;
-	tk.start();
-
-	fprintf_s(stdout, "Scaning...\n");
-
-	////算法效率测试代码
-	//size_t length = 100;
-	//size_t errcount = 0;
-	//
-	//for (size_t i = 0; i < length; i++)
-	//{
-	//	if (Scan(ScanMode::SMode_random) < 6) {
-	//		errcount++;
-	//	}
-	//	target.clear();
-	//}
-	//
-	////Scan(ScanMode::SMode_random);
-	//tk.stop();
-	//fprintf_s(stdout, "Scan cost times: %.2lf ms\n", tk.getTimeMilli() / length);
-	//fprintf_s(stderr, "errcount: %llu\n", errcount);
-
 	Scan();
 }
 
@@ -144,6 +122,29 @@ void CVApp::ShowAll_d(bool cb)
 #endif // KEEP_BACKGROUND
 
 	WaitESC();
+}
+
+void CVApp::ShowTatget(void)
+{
+	TargetDisplay displayer(&testImgs[3]);
+
+	auto it = target.begin();
+	auto it_end = target.end();
+
+	//for (; it != it_end; it++) {
+	//	displayer.DrawInside(*it);
+	//	displayer.DrawPeripheral(*it);
+	//}
+
+	//it = target.begin();
+	//it_end = target.end();
+
+	for (; it != it_end; it++) {
+		displayer.DrawCross(*it);
+		displayer.DrawBox(*it);
+		displayer.DrawText(*it, pClassifier->getTC(it->TFea.TFea));
+	}
+
 }
 
 void CVApp::CreateWindows(void)
@@ -188,25 +189,6 @@ void CVApp::WaitESC(void)
 	};
 }
 
-void CVApp::ShowTatget(void)
-{
-	auto it = target.begin();
-	auto it_end = target.end();
-
-	//for (; it != it_end; it++) {
-	//	it->SetCanvas(&testImgs[3]);
-	//	it->DrawColor();
-	//}
-
-	//it = target.begin();
-	//it_end = target.end();
-
-	for (; it != it_end; it++) {
-		it->SetCanvas(&testImgs[3]);
-		it->DrawBox();
-	}
-
-}
 
 //图像转换处理函数
 
