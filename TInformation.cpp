@@ -51,6 +51,11 @@ bool TInformation::IsInside(Point pt)
 	}
 }
 
+void TInformation::IsHollow(FList& tlist)
+{
+
+}
+
 void TInformation::CalRectMat(const Mat* pImg, FList tlist)
 {
 	TRectImg = Mat(Size(rect_Box.width, rect_Box.height), CV_8UC1);

@@ -1,15 +1,8 @@
 #include "Target.h"
 
-String strTargetClass[]{
-	"null",
-	"incomplete",
-	"unknown",
-};
-
 Target::Target()
 {
 	pImg	= nullptr;
-	canvas	= nullptr;
 
 	//plist;
 	//tlist;
@@ -24,7 +17,6 @@ Target::Target()
 Target::Target(const Target& tTemp)
 {
 	pImg	= tTemp.pImg;
-	canvas	= tTemp.canvas;
 
 	plist	= tTemp.plist;
 	tlist	= tTemp.tlist;
@@ -39,7 +31,6 @@ Target::Target(const Target& tTemp)
 Target::Target(Mat& Img, Point seed)
 {
 	pImg = &Img;
-	canvas = nullptr;
 	Isize = Rect(0, 0, pImg->cols, pImg->rows);
 
 	Grow(seed);
@@ -52,10 +43,8 @@ Target::Target(Mat& Img, Point seed)
 		TInfo	= TInformation(&Img, tlist, plist);
 		TFea	= TFeature(tlist, plist);
 		TState	= IsOutImg() ? TargetState::TS_OutImage : TargetState::TS_Normal;
-
 	}
-	else
-	{
+	else {
 		TState = TargetState::TS_Null;
 	}
 }
@@ -68,7 +57,6 @@ Target::~Target()
 Target& Target::operator=(const Target& tTemp)
 {
 	pImg		= tTemp.pImg;
-	canvas		= tTemp.canvas;
 
 	plist		= tTemp.plist;
 	tlist		= tTemp.tlist;

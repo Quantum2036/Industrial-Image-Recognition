@@ -50,9 +50,3 @@ enum class TargetState
 	TS_OutImage,	//部分在图像外的
 	TS_Normal,		//正常图片
 };
-
-
-	//TC_nut,			//六角螺母
-	//TC_screw_1,		//六角螺丝-倒
-	//TC_screw_2,		//六角螺丝-立
-	//TC_ring,			//圆形垫片

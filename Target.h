@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "TClassifier.h"
+#include "TFeature.h"
 #include "TInformation.h"
 
 //程序捕获到的目标，螺丝，螺帽之类的玩意儿
@@ -19,7 +19,7 @@ public:
 /*************数据*************/
 public:
 
-	//目标信息
+	//目标位置信息
 	TInformation TInfo;
 
 	//目标的特征
@@ -29,11 +29,6 @@ private:
 
 	//核心-构造所用的图像指针
 	Mat* pImg;
-
-	//画布，用来输出一些信息
-	//	由App类中使用函数 SetCanvas() 手动提供,
-	//	否则为构造时用的图像
-	Mat* canvas;
 
 	//目标内部的所有点
 	FList tlist;

@@ -53,6 +53,7 @@ public:
 	//返回点的区域
 	Rect GetRect(void);
 
+	//返回点的中心
 	Point GetCentre(void);
 
 	//将点(nX,nY)有序插入到表中

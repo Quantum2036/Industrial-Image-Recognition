@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "FList.h"
 
+//目标的区域信息
 class TInformation
 {
 //	构造 & 析构
@@ -53,6 +54,9 @@ public:
 
 private:
 	
+	//是否中空
+	void IsHollow(FList& tlist);
+
 	//计算目标bool矩阵
 	void CalRectMat(const Mat* pImg, FList tlist);
 
@@ -81,7 +85,6 @@ private:
 	{
 		return Point(pt.x - rect_Box.x, pt.y - rect_Box.y);
 	}
-
 
 #if DEBUG_PRINTF
 	//测试用输出

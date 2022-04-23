@@ -61,13 +61,9 @@ Size TFeature::CalMER(FList& plist)
 
 uint TFeature::CalCorners(void)
 {
-	//Mat dst;
-	//Mat norm;
-	//Mat u8c1;
+	Mat SE = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
 
-	//cornerHarris(, dst, 2, 3, 0.04);
-	//normalize(dst, norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
-	//convertScaleAbs(norm, u8c1);
+
 	return 0;
 }
 

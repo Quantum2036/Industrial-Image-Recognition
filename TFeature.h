@@ -54,7 +54,7 @@ private:
 	Size CalER(FList& plist);
 
 	//旋转链表list中的点，以点Point为中心每次旋转angle度
-	void RotateList(FList& list, int angle = 3);
+	void RotateList(FList& list, int angle = 1);
 
 
 #if DEBUG_PRINTF
