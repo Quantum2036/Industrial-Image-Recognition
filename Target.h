@@ -25,6 +25,8 @@ public:
 	//目标的特征
 	TFeature TFea;
 
+	std::vector<Point> SUSAN_list;
+
 private:
 
 	//核心-构造所用的图像指针
@@ -57,6 +59,17 @@ private:
 
 	//判断目标是否超出图像
 	bool IsOutImg(void);
+	
+	//判断目标是否中空
+	bool IsHollow(void);
+
+	//计算角点数——SUSAN方法
+	uint CalCorners(void);
+
+	//计算角点数——形态学方法
+	uint CalCorners_morph(void) {
+		return 0;
+	}
 
 };
 

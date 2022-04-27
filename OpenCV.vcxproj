@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CircleMatching.cpp" />
     <ClCompile Include="CVApp.cpp" />
     <ClCompile Include="TargetDisplay.cpp" />
     <ClCompile Include="TClassifier.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="Trainer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CircleMatching.h" />
     <ClInclude Include="CVApp.h" />
     <ClInclude Include="TargetDisplay.h" />
     <ClInclude Include="TClassifier.h" />

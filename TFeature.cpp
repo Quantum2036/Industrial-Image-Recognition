@@ -7,19 +7,23 @@ TFeature::TFeature()
 
 TFeature::TFeature(const TFeature& fTemp)
 {
-	TFea	= fTemp.TFea;
+	Struct_feature = fTemp.Struct_feature;
 	centre	= fTemp.centre;
 }
 
 TFeature::TFeature(FList tlist, FList plist)
 {
-	TFea.size			= tlist.GetSize();
-	TFea.Peripheral		= plist.GetSize();
-	TFea.MER			= CalMER(plist);
-	TFea.corners		= CalCorners();
-	TFea.Rectangularity	= CalR();
-	TFea.consistency	= CalC();
-	TFea.eccentricity	= CalE();
+	Struct_feature.size			= tlist.GetSize();
+	Struct_feature.peripheral	= plist.GetSize();
+
+	Size MER					= CalMER(plist);
+	Struct_feature.major_axis	= MER.width;
+	Struct_feature.minor_axis	= MER.height;
+
+	Struct_feature.corners		= 0;
+	Struct_feature.Rectangularity	= CalR();
+	Struct_feature.consistency	= CalC();
+	Struct_feature.eccentricity	= CalE();
 
 #if DEBUG_PRINTF
 	print_d();
@@ -33,7 +37,7 @@ TFeature::~TFeature()
 
 TFeature& TFeature::operator=(const TFeature& fTemp)
 {
-	TFea	= fTemp.TFea;
+	Struct_feature = fTemp.Struct_feature;
 	centre	= fTemp.centre;
 
 	return *this;
@@ -59,18 +63,11 @@ Size TFeature::CalMER(FList& plist)
 	return minSize;
 }
 
-uint TFeature::CalCorners(void)
-{
-	Mat SE = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
-
-
-	return 0;
-}
-
 double TFeature::CalR(void)
 {
-	if (TFea.MER.area()) {
-		return (double)TFea.size / (double)TFea.MER.area();
+	double MER_area = Struct_feature.major_axis * Struct_feature.minor_axis;
+	if (MER_area) {
+		return (double)Struct_feature.size / MER_area;
 	}
 	else {
 		return 0.0;
@@ -79,8 +76,8 @@ double TFeature::CalR(void)
 
 double TFeature::CalC(void)
 {
-	if (TFea.size) {
-		return (double)TFea.Peripheral * (double)TFea.Peripheral / (double)TFea.size;
+	if (Struct_feature.size) {
+		return (double)Struct_feature.peripheral * (double)Struct_feature.peripheral / (double)Struct_feature.size;
 	}
 	else {
 		return 0.0;
@@ -89,8 +86,8 @@ double TFeature::CalC(void)
 
 double TFeature::CalE(void)
 {
-	if (TFea.MER.width) {
-		return (double)TFea.MER.height / (double)TFea.MER.width;
+	if (Struct_feature.major_axis) {
+		return (double)Struct_feature.minor_axis / (double)Struct_feature.major_axis;
 	}
 	else {
 		return 0.0;
@@ -137,10 +134,10 @@ void TFeature::RotateList(FList& list, int angle)
 void TFeature::print_d(void)
 {
 	puts("TFeature 构造完成：");
-	printf("周长：%3d, 面积：%3d\n", TFea.Peripheral, TFea.size);
-	printf("最小外接矩形：[%3d,%3d]\n", TFea.MER.width, TFea.MER.height);
-	printf("角点数：%d\n", TFea.corners);
-	printf("矩形度：%.3f, 圆形度：%.3f, 偏心率：%.3f\n", TFea.Rectangularity, TFea.consistency, TFea.eccentricity);
+	printf("周长：%3d, 面积：%3d\n", Struct_feature.peripheral, Struct_feature.size);
+	printf("最小外接矩形：[%3d,%3d]\n", Struct_feature.major_axis, Struct_feature.minor_axis);
+	printf("角点数：%d\n", Struct_feature.corners);
+	printf("矩形度：%.3f, 圆形度：%.3f, 偏心率：%.3f\n", Struct_feature.Rectangularity, Struct_feature.consistency, Struct_feature.eccentricity);
 	printf("centre: [%3d,%3d]\n", centre.x, centre.y);
 
 }

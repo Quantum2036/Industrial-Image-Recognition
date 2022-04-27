@@ -31,13 +31,16 @@ public:
 //	方法
 public:
 
+	//将未命名替换成name
+	void ChangeName(String name);
+
 	//将分类器数据保存到文件
 	void SaveClassifier(void);
 
 	//从文件中读取分类器
 	void LoadClassifier(const char* filePath);
 
-	//添加新标识
+	//添加新类型，会检验是否重复
 	void AddNewClass(feature TFea, String name);
 
 	//添加新数据，不检验重复
@@ -86,6 +89,9 @@ public:
 	//根据目标特征判断目标类型，err为基础容许误差
 	String getTC(const feature& TFea);
 
+	//根据目标特征强制分类
+	String classify(const feature& TFea);
+
 	//判断容器是否为空
 	bool IsEmpty(void) {
 		return data.empty();
@@ -108,10 +114,10 @@ private:
 	//打开分类器文件
 	FILE* OpenFile(const char* ClassifierPath, const char* mode);
 
-	//读取数据结构
+	//从文件流fp中读取特征结构
 	void ReadStructure(FILE* fp);
 
-	//写入数据结构
+	//向文件流fp中写入特征结构
 	void WriteStructure(FILE* fp, size_t count);
 
 	

@@ -10,6 +10,15 @@ TargetDisplay::TargetDisplay(Mat* pImgCanvas)
 	canvas = pImgCanvas;
 }
 
+void TargetDisplay::DrawList(std::vector<Point> list, Scalar color)
+{
+	for (auto it = list.begin(); it < list.end(); it++) {
+		canvas->at<Vec3b>(*it)[0] = (uchar)color.val[0];
+		canvas->at<Vec3b>(*it)[1] = (uchar)color.val[1];
+		canvas->at<Vec3b>(*it)[2] = (uchar)color.val[2];
+	}
+}
+
 void TargetDisplay::DrawInside(Target& obj, Scalar color_inside)
 {
 	SetColor(obj.tlist, color_inside);

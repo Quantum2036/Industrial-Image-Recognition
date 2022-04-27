@@ -1,4 +1,6 @@
 #include "Target.h"
+#include "CircleMatching.h"
+#include <algorithm>
 
 Target::Target()
 {
@@ -20,6 +22,7 @@ Target::Target(const Target& tTemp)
 
 	plist	= tTemp.plist;
 	tlist	= tTemp.tlist;
+	SUSAN_list = tTemp.SUSAN_list;
 
 	TFea	= tTemp.TFea;
 	TInfo	= tTemp.TInfo;
@@ -43,6 +46,8 @@ Target::Target(Mat& Img, Point seed)
 		TInfo	= TInformation(&Img, tlist, plist);
 		TFea	= TFeature(tlist, plist);
 		TState	= IsOutImg() ? TargetState::TS_OutImage : TargetState::TS_Normal;
+		TFea.Struct_feature.isHollow	= IsHollow();
+		TFea.Struct_feature.corners	= CalCorners();
 	}
 	else {
 		TState = TargetState::TS_Null;
@@ -60,6 +65,7 @@ Target& Target::operator=(const Target& tTemp)
 
 	plist		= tTemp.plist;
 	tlist		= tTemp.tlist;
+	SUSAN_list = tTemp.SUSAN_list;
 
 	TFea		= tTemp.TFea;
 	TInfo		= tTemp.TInfo;
@@ -102,4 +108,28 @@ bool Target::IsOutImg(void)
 	else {
 		return false;
 	}
+}
+
+bool Target::IsHollow(void)
+{
+	Point centre = plist.GetCentre();
+	CircleMatching matchingOBJ(pImg, 3);
+	return matchingOBJ.Todo(centre, 0) > 0.7 ? true :false;
+}
+
+uint Target::CalCorners(void)
+{
+	int count = plist.GetSize();
+	std::vector<double> vect_1(count, 0);
+	CircleMatching SUSAN(pImg, 7);
+
+	auto it = plist.begin();
+	auto it_end = plist.end();
+	for (; it != it_end; it++) {
+		if (SUSAN.Todo(*it, 255) < 0.4) {
+			SUSAN_list.emplace_back(*it);
+		}
+	}
+
+	return 0;
 }

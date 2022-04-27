@@ -38,6 +38,11 @@ CVApp::CVApp(Mat& test, Mat& background)
 
 void CVApp::AddTestImg(Mat& tImg)
 {
+	if (tImg.empty()) {
+		fprintf_s(stderr, "ERROR: Input  test image is empty. \n");
+		exit(EXIT_FAILURE);
+	}
+
 	testImgs.emplace_back(tImg.clone());
 	testImgs.emplace_back(ToGray(testImgs[0]).clone());
 
@@ -56,6 +61,11 @@ void CVApp::AddTestImg(Mat& tImg)
 
 void CVApp::AddBackground(Mat& bkImg)
 {
+	if (bkImg.empty()) {
+		fprintf_s(stderr, "ERROR: Input  background image is empty. \n");
+		exit(EXIT_FAILURE);
+	}
+
 	bgImgs.emplace_back(bkImg.clone());
 	bgImgs.emplace_back(ToGray(bgImgs[0]).clone());
 
@@ -98,7 +108,7 @@ void CVApp::PostProcessing(void)
 
 //显示输出函数
 
-void CVApp::ShowAll_d(bool cb)
+void CVApp::ShowWindows(bool cb)
 {
 	CreateWindows();
 
@@ -140,9 +150,10 @@ void CVApp::ShowTatget(void)
 	//it_end = target.end();
 
 	for (; it != it_end; it++) {
+		displayer.DrawList(it->SUSAN_list, Scalar(0, 0, 255));
 		displayer.DrawCross(*it);
 		displayer.DrawBox(*it);
-		displayer.DrawText(*it, pClassifier->getTC(it->TFea.TFea));
+		displayer.DrawText(*it, pClassifier->classify(it->TFea.Struct_feature));
 	}
 
 }
@@ -297,7 +308,7 @@ Mat CVApp::MinusMat_3(void)
 void CVApp::ProBinarization(void)
 {
 	fprintf_s(stderr, "正在优化二值图... \n");
-	ProBinarization_Subprocess_1();
+	//ProBinarization_Subprocess_1();
 	ProBinarization_Subprocess_2();
 }
 
@@ -355,9 +366,9 @@ void CVApp::ProBinarization_Subprocess_1_ApplyList(FList& tlist)
 
 void CVApp::ProBinarization_Subprocess_2(void)
 {
-	Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
+	Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
+	morphologyEx(testImgs[2], testImgs[2], MORPH_CLOSE, kernel);
 	morphologyEx(testImgs[2], testImgs[2], MORPH_OPEN, kernel);
-
 }
 
 //目标扫描捕获算法
@@ -376,13 +387,14 @@ size_t CVApp::Scan(ScanMode mode)
 		Scan_Pixel();
 		break;
 	default:
-		puts("未定义该扫描模式");
-		exit(-2);
+		fprintf_s(stderr, "WARNING: 未定义该扫描模式  默认启用网格扫描 \n");
+		Scan_Random();
 	}
 
+#if DEBUG_PRINTF
 	puts("扫描已完成");
 	printf("捕获目标数: %zd\n\n", target.size());
-
+#endif // DEBUG_PRINTF
 
 	return target.size();
 }

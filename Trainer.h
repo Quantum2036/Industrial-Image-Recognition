@@ -23,9 +23,6 @@ private:
 	//所有扫到的目标的特征
 	TClassifier feature_Data;
 
-	//所有扫到的目标的特征
-	//std::vector<feature> feature_Data;
-
 	//分类器
 	TClassifier target_Class;
 
@@ -36,7 +33,10 @@ public:
 	void SaveTClassifier(const char* Target_Name);
 
 private:
-	
+
+	//	8 线程处理读入的图片
+	void threadProcess_8(std::vector<String> image_names, Mat& background);
+
 	//将数据保存到指定的文件夹
 	void SaveData_d(String& Save_Full_Path, std::vector<feature>& feaIn);
 

@@ -1,24 +1,30 @@
 #include "Trainer.h"
 #include <io.h>
+#include <thread>
+#include <mutex>
 
 Trainer::Trainer()
 {
-
+	target_Name = String("unnamed");
 }
 
 Trainer::Trainer(Mat& background, const char* folderPath, const char* fileType)
 {
+	target_Name = String("unnamed");
 	std::vector<String> testImgs = VaildFileList( getAllFile(folderPath, fileType) );
+	size_t length = testImgs.size();	//待扫描的图像数目
 
-	size_t length = testImgs.size();
-	fprintf_s(stdout, "发现[%llu]个可读取图片文件.\n", length);
+	fprintf_s(stdout, "在目录 %s 发现[%llu]个可读取图片文件.\n", folderPath, length);
+	fprintf_s(stdout, "扫描中...\t");
 
-	for (size_t i = 0; i < length; i++)
-	{
-		Mat tImg = imread(testImgs[i]);
-		CVApp tho(tImg, background);
-		PushFeatureData(*tho.getTargets(), testImgs[i]);
-	}
+	TickMeter timer;	//计时器
+
+	timer.start();
+	threadProcess_8(testImgs, background);
+	timer.stop();
+
+	fprintf_s(stdout, "完成\t平均扫描用时 %.2lf ms\t", timer.getTimeMilli() / length);
+	fprintf_s(stdout, "捕获 有效目标 [%llu]\n", feature_Data.getSize());
 }
 
 String Trainer::StrAddChar(const String& str, size_t length)
@@ -44,12 +50,8 @@ void Trainer::PushFeatureData(std::vector<Target>& target, String fileName)
 	auto it_end = target.end();
 
 	for (; it != it_end; it++) {
-		if (it->GetTargetState() == TargetState::TS_Normal)
-		{
-			feature_Data.AddNewData(it->TFea.TFea, fileName);
-		}
-		else if (it->GetTargetState() == TargetState::TS_OutImage) {
-			fprintf_s(stdout, "跨边界物体，已略去.\n\n");
+		if (it->GetTargetState() == TargetState::TS_Normal) {
+			feature_Data.AddNewData(it->TFea.Struct_feature, fileName);
 		}
 	}
 }
@@ -62,6 +64,46 @@ void Trainer::SaveTClassifier(const char* Target_Name)
 	target_Class.SaveClassifier();
 }
 
+void Trainer::threadProcess_8(std::vector<String> image_names, Mat& background)
+{
+	size_t sum = image_names.size();
+	size_t avg = sum / 8;
+
+	size_t num_0 = 0, num_1 = num_0 + avg, num_2 = num_1 + avg, num_3 = num_2 + avg;
+	size_t num_4 = num_3 + avg, num_5 = num_4 + avg, num_6 = num_5 + avg, num_7 = num_6 + avg, num_8 = sum;
+
+	std::mutex mu;
+	auto Sub_fun = [&](size_t begin, size_t end) {
+		for (size_t i = begin; i < end; i++)
+		{
+			Mat tImg = imread(image_names[i]);
+			CVApp tho(tImg, background);
+
+			mu.lock();
+			PushFeatureData(*tho.getTargets(), image_names[i]);
+			mu.unlock();
+		}
+	};
+
+	std::thread thread_01(Sub_fun, num_0, num_1);
+	std::thread thread_02(Sub_fun, num_1, num_2);
+	std::thread thread_03(Sub_fun, num_2, num_3);
+	std::thread thread_04(Sub_fun, num_3, num_4);
+	std::thread thread_05(Sub_fun, num_4, num_5);
+	std::thread thread_06(Sub_fun, num_5, num_6);
+	std::thread thread_07(Sub_fun, num_6, num_7);
+	std::thread thread_08(Sub_fun, num_7, num_8);
+
+	thread_01.join();
+	thread_02.join();
+	thread_03.join();
+	thread_04.join();
+	thread_05.join();
+	thread_06.join();
+	thread_07.join();
+	thread_08.join();
+}
+
 void Trainer::SaveData_d(String& Save_Full_Path, std::vector<feature>& feaIn)
 {
 	if (Save_Full_Path.size() -  Save_Full_Path.rfind(".txt") != 4) {
@@ -72,18 +114,19 @@ void Trainer::SaveData_d(String& Save_Full_Path, std::vector<feature>& feaIn)
 	fopen_s(&fp, Save_Full_Path.c_str(), "w");
 	if (!fp) {
 		fprintf_s(stderr, "ERROR: Open file fail. \n");
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 
-	fprintf_s(fp, "面积\t周长\t最长轴\t最短轴\t角点数\t矩形度\t圆形度\t偏心率\n");
+	fprintf_s(fp, "面积\t周长\t最长轴\t最短轴\t中空\t角点数\t矩形度\t圆形度\t偏心率\n");
 
 	auto it = feaIn.begin();
 	auto it_end = feaIn.end();
 	for (; it != it_end; it++) {
 		fprintf_s(fp, "%u\t", it->size);
-		fprintf_s(fp, "%d\t", it->Peripheral);
-		fprintf_s(fp, "%d\t", it->MER.width);
-		fprintf_s(fp, "%d\t", it->MER.height);
+		fprintf_s(fp, "%d\t", it->peripheral);
+		fprintf_s(fp, "%d\t", it->major_axis);
+		fprintf_s(fp, "%d\t", it->minor_axis);
+		fprintf_s(fp, "%d\t", it->isHollow);
 		fprintf_s(fp, "%d\t", it->corners);
 		fprintf_s(fp, "%.3lf\t", it->Rectangularity);
 		fprintf_s(fp, "%.3lf\t", it->consistency);
@@ -135,13 +178,18 @@ std::vector<String> Trainer::VaildFileList(std::vector<String> fileList)
 
 void Trainer::Analysis(void)
 {
+	fprintf_s(stdout, "分析中...\t");
+
 	if (feature_Data.IsEmpty()) {
+		fprintf_s(stdout, "未找到数据\n");
 		return;
 	}
-
+	
 	Sieve_1(0.30);
 	Sieve_2(0.20);
 	Sieve_2(0.15);
+
+	fprintf_s(stdout, "完成\n\n");
 }
 
 void Trainer::Sieve_1(double errlimit)
@@ -221,9 +269,10 @@ feature Trainer::getAverageFeature(const std::vector<feature>& feas)
 		for (size_t i = 0; i < sum; i++)
 		{
 			feature_sum.size += feas[i].size;
-			feature_sum.Peripheral += feas[i].Peripheral;
-			feature_sum.MER.width += feas[i].MER.width;
-			feature_sum.MER.height += feas[i].MER.height;
+			feature_sum.peripheral += feas[i].peripheral;
+			feature_sum.major_axis += feas[i].major_axis;
+			feature_sum.minor_axis += feas[i].minor_axis;
+			feature_sum.isHollow += feas[i].isHollow;
 			feature_sum.corners += feas[i].corners;
 			feature_sum.Rectangularity += feas[i].Rectangularity;
 			feature_sum.consistency += feas[i].consistency;
@@ -231,9 +280,10 @@ feature Trainer::getAverageFeature(const std::vector<feature>& feas)
 		}
 
 		feature_sum.size = (uint)(feature_sum.size / (double)sum);
-		feature_sum.Peripheral = (uint)(feature_sum.Peripheral / (double)sum);
-		feature_sum.MER.width = (uint)(feature_sum.MER.width / (double)sum);
-		feature_sum.MER.height = (uint)(feature_sum.MER.height / (double)sum);
+		feature_sum.peripheral = (uint)(feature_sum.peripheral / (double)sum);
+		feature_sum.major_axis = (uint)(feature_sum.major_axis / (double)sum);
+		feature_sum.minor_axis = (uint)(feature_sum.minor_axis / (double)sum);
+		feature_sum.isHollow = (feature_sum.isHollow / (double)sum) > 0.5 ? 1 : 0;
 		feature_sum.corners = (uint)(feature_sum.corners / (double)sum);
 		feature_sum.Rectangularity /= (double)sum;
 		feature_sum.consistency /= (double)sum;

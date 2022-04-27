@@ -17,6 +17,8 @@ private:
 //	方法
 public:
 
+	void DrawList(std::vector<Point> list, Scalar color);
+
 	//用颜色填充目标的内部和边界
 	void DrawInside(Target& obj,  Scalar color_inside = Scalar(230, 230, 230));
 	void DrawPeripheral(Target& obj, Scalar color_peripheral = Scalar(150, 150, 150));

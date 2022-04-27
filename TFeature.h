@@ -4,8 +4,10 @@
 
 typedef struct _Fearture {
 	uint size				= 0;		//面积
-	uint Peripheral			= 0;		//周长
-	Size MER				= Size();	//最小外接矩形
+	uint peripheral			= 0;		//周长
+	uint major_axis			= 0;		//MER的长轴
+	uint minor_axis			= 0;		//MER的短轴
+	uint isHollow			= 0;		//是否中空
 	uint corners			= 0;		//角点数
 	double Rectangularity	= 0.0;		//矩形度
 	double consistency		= 0.0;		//圆形度（致密度）
@@ -27,7 +29,7 @@ public:
 public:
 
 	//特征结构
-	feature TFea;
+	feature Struct_feature;
 
 	//目标几何中心
 	Point centre;
@@ -37,9 +39,6 @@ private:
 
 	//计算最小外接矩形
 	Size CalMER(FList& plist);
-
-	//计算角点数-----未完成
-	uint CalCorners(void);
 
 	//计算矩形度
 	double CalR(void);

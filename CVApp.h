@@ -58,7 +58,7 @@ public:
 
 	//输出所有图像————测试用
 	//	cb = true 时启用鼠标回调函数
-	void ShowAll_d(bool cb = false);
+	void ShowWindows(bool cb = false);
 
 	//扫描图像，找出可能的对象，
 	//	默认扫描模式为网格扫描

@@ -4,8 +4,9 @@
 String TClassifier::strfeatureName[] = {
 	"size",
 	"peripheral",
-	"MER.width",
-	"MER.height",
+	"major_axis",
+	"minor_axis",
+	"isHollow",
 	"corners",
 	"rectangularity",
 	"consistency",
@@ -38,6 +39,19 @@ TClassifier& TClassifier::operator=(const TClassifier& tc)
 	Tname	= tc.Tname;
 
 	return *this;
+}
+
+void TClassifier::ChangeName(String name)
+{
+	for (size_t i = 0; i < count; i++) {
+		size_t pos = Tname[i].find("unnamed");
+		if (pos == String::npos) {
+			continue;
+		}
+
+
+
+	}
 }
 
 void TClassifier::SaveClassifier(void)
@@ -99,6 +113,129 @@ String TClassifier::getTC(const feature& TFea)
 	return String("unknown");
 }
 
+String TClassifier::classify(const feature& TFea)
+{
+	std::vector<uint> arr(count, 0);
+	
+	double	big_number = 1E15;
+	double	min_err = big_number;	//最小误差，进行比较前先设置为一极大数
+	double	err = 0.0;				//记录的当前误差
+
+	//将变量重置
+	auto lfunc_reset = [&] {min_err = big_number;};
+	auto minus = [](uint x, uint y) -> double {return (double)x - (double)y; };
+	
+	//面积
+	for (size_t i = 0; i < count; i++)
+	{
+		err = fabs(minus(data[i].size,TFea.size));
+		if (err < min_err) min_err = err;
+	}
+	for (size_t i = 0; i < count; i++) {
+		if (fabs(minus(data[i].size, TFea.size)) == min_err) arr[i]++;
+	}
+
+	//周长
+	lfunc_reset();
+	for (size_t i = 0; i < count; i++)
+	{
+		err = fabs(minus(data[i].peripheral, TFea.peripheral));
+		if (err < min_err) min_err = err;
+	}
+	for (size_t i = 0; i < count; i++) {
+		if (fabs(minus(data[i].peripheral, TFea.peripheral)) == min_err) arr[i]++;
+	}
+
+	//长轴
+	lfunc_reset();
+	for (size_t i = 0; i < count; i++)
+	{
+		err = fabs(minus(data[i].major_axis, TFea.major_axis));
+		if (err < min_err) min_err = err;
+	}
+	for (size_t i = 0; i < count; i++) {
+		if (fabs(minus(data[i].major_axis, TFea.major_axis)) == min_err) arr[i]++;
+	}
+
+	//短轴
+	lfunc_reset();
+	for (size_t i = 0; i < count; i++)
+	{
+		err = fabs(minus(data[i].minor_axis, TFea.minor_axis));
+		if (err < min_err) min_err = err;
+	}
+	for (size_t i = 0; i < count; i++) {
+		if (fabs(minus(data[i].minor_axis, TFea.minor_axis)) == min_err) arr[i]++;
+	}
+
+	//Hollow
+	lfunc_reset();
+	for (size_t i = 0; i < count; i++)
+	{
+		if (TFea.isHollow == data[i].isHollow) {
+			arr[i] += 2;
+		}
+	}
+
+	//角点
+	lfunc_reset();
+	for (size_t i = 0; i < count; i++)
+	{
+		err = fabs(minus(data[i].corners, TFea.corners));
+		if (err < min_err) min_err = err;
+	}
+	for (size_t i = 0; i < count; i++) {
+		if (fabs(minus(data[i].corners, TFea.corners)) == min_err) arr[i]++;
+	}
+
+	//矩形度
+	lfunc_reset();
+	for (size_t i = 0; i < count; i++)
+	{
+		err = fabs(data[i].Rectangularity - TFea.Rectangularity);
+		if (err < min_err) min_err = err;
+	}
+	for (size_t i = 0; i < count; i++) {
+		if (fabs(data[i].Rectangularity - TFea.Rectangularity) == min_err) arr[i]++;
+	}
+
+	//圆形度
+	lfunc_reset();
+	for (size_t i = 0; i < count; i++)
+	{
+		err = fabs(data[i].consistency - TFea.consistency);
+		if (err < min_err) min_err = err;
+	}
+	for (size_t i = 0; i < count; i++) {
+		if (fabs(data[i].consistency - TFea.consistency) == min_err) arr[i]++;
+	}
+
+	//偏心率
+	lfunc_reset();
+	for (size_t i = 0; i < count; i++)
+	{
+		err = fabs(data[i].eccentricity - TFea.eccentricity);
+		if (err < min_err) min_err = err;
+	}
+	for (size_t i = 0; i < count; i++) {
+		if (fabs(data[i].eccentricity - TFea.eccentricity) == min_err) arr[i]++;
+	}
+
+	//统计最高得分
+	lfunc_reset();
+	size_t num = 0;
+	size_t max_score = 0;
+	for (size_t i = 0; i < count; i++)
+	{
+		if (arr[i] > max_score) {
+			max_score = arr[i];
+			num = i;
+		}
+	}
+
+	return Tname[num];
+}
+
 bool TClassifier::IsExistTFeature(const feature& TFea, double errlimit)
 {
 	for (int i = 0; i < count; i++) {
@@ -138,13 +275,13 @@ bool TClassifier::IsFeatureEqual(const feature& TFea_in, const feature& TFea_std
 	err = fabs((double)TFea_in.size - (double)TFea_std.size) / (double)TFea_std.size;
 	err < errlimit ? flag++ : flag -= 2;
 
-	err = fabs((double)TFea_in.Peripheral - (double)TFea_std.Peripheral) / (double)TFea_std.Peripheral;
+	err = fabs((double)TFea_in.peripheral - (double)TFea_std.peripheral) / (double)TFea_std.peripheral;
 	err < errlimit ? flag++ : flag -= 2;
 
-	err = fabs((double)TFea_in.MER.width - (double)TFea_std.MER.width) / (double)TFea_std.MER.width;
+	err = fabs((double)TFea_in.major_axis - (double)TFea_std.major_axis) / (double)TFea_std.major_axis;
 	err < errlimit ? flag++ : flag -= 2;
 
-	err = fabs((double)TFea_in.MER.height - (double)TFea_std.MER.height) / (double)TFea_std.MER.height;
+	err = fabs((double)TFea_in.minor_axis - (double)TFea_std.minor_axis) / (double)TFea_std.minor_axis;
 	err < errlimit ? flag++ : flag -= 2;
 
 	err = fabs(TFea_in.corners - TFea_std.corners);
@@ -168,7 +305,7 @@ FILE* TClassifier::OpenFile(const char* ClassifierPath, const char* mode)
 	fopen_s(&fp, ClassifierPath, mode);
 	if (!fp) {
 		fprintf_s(stderr, "ERROR: Open file fail. \n");
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 
 	return fp;
@@ -182,9 +319,10 @@ void TClassifier::ReadStructure(FILE* fp)
 
 	fscanf_s(fp, "\" %s \" = {\n", tname, 256);
 	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.size);
-	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.Peripheral);
-	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.MER.width);
-	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.MER.height);
+	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.peripheral);
+	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.major_axis);
+	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.minor_axis);
+	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.isHollow);
 	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.corners);
 	fscanf_s(fp, "\t%s = %lf;\n", cname, 256, &thisTFea.Rectangularity);
 	fscanf_s(fp, "\t%s = %lf;\n", cname, 256, &thisTFea.consistency);
@@ -201,13 +339,14 @@ void TClassifier::WriteStructure(FILE* fp, size_t count)
 
 	fprintf_s(fp, "\" %s \" = {\n", tname.c_str());
 	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[0].c_str(), fea.size);
-	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[1].c_str(), fea.Peripheral);
-	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[2].c_str(), fea.MER.width);
-	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[3].c_str(), fea.MER.height);
-	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[4].c_str(), fea.corners);
-	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[5].c_str(), fea.Rectangularity);
-	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[6].c_str(), fea.consistency);
-	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[7].c_str(), fea.eccentricity);
+	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[1].c_str(), fea.peripheral);
+	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[2].c_str(), fea.major_axis);
+	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[3].c_str(), fea.minor_axis);
+	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[4].c_str(), fea.isHollow);
+	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[5].c_str(), fea.corners);
+	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[6].c_str(), fea.Rectangularity);
+	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[7].c_str(), fea.consistency);
+	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[8].c_str(), fea.eccentricity);
 	fprintf_s(fp, "}\n\n");
 
 }
