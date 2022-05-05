@@ -114,7 +114,7 @@ bool Target::IsHollow(void)
 {
 	Point centre = plist.GetCentre();
 	CircleMatching matchingOBJ(pImg, 3);
-	return matchingOBJ.Todo(centre, 0) > 0.7 ? true :false;
+	return matchingOBJ.Todo(centre, 0) > 0.5 ? true :false;
 }
 
 uint Target::CalCorners(void)

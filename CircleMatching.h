@@ -6,13 +6,12 @@ class CircleMatching
 {
 //	构造 &　析构
 public:
-	CircleMatching();
 	CircleMatching(Mat* ptest, const uchar& radius);
 
 //	数据
 private:
 
-	//要进行匹配的模板，必须为二值图像
+	//要进行模板匹配的图像指针，必须为二值图像
 	Mat* pImg;
 
 	//匹配所用的结构元素
@@ -26,14 +25,23 @@ private:
 
 //	方法
 public:
-
-	//返回匹配程度，完美匹配返回1.0
-	//	在点Pt进行模板匹配，匹配用的颜色为color
+	
+	/// <summary>
+	/// 进行模板匹配
+	/// </summary>
+	/// <param name="pt">进行模板匹配的中心点</param>
+	/// <param name="color">进行模板匹配的颜色值</param>
+	/// <returns>返回模板范围内颜色值为 color 的比例，若完美匹配返回1.0</returns>
 	double Todo(const Point& pt, const uchar color);
 
 private:
 
-	//检验点的有效性
+	/// <summary>
+	/// 检验要比较的点是否在图像范围内
+	/// </summary>
+	/// <param name="nX">点所在的列数</param>
+	/// <param name="nY">点所在的行数</param>
+	/// <returns>点在图像范围内为true，否则为false</returns>
 	bool IsValidPoint(const int nX, const int nY) {
 		return (nX > 0 && nY > 0 && nX + SE_radius < pImg->cols && nY + SE_radius  < pImg->rows);
 	}
