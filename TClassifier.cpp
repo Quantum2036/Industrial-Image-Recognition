@@ -23,6 +23,7 @@ TClassifier::TClassifier(const TClassifier& tc)
 	count	= tc.count;
 	data	= tc.data;
 	Tname	= tc.Tname;
+	filePath = tc.filePath;
 }
 
 TClassifier::~TClassifier()
@@ -30,6 +31,7 @@ TClassifier::~TClassifier()
 	data.clear();
 	Tname.clear();
 	count = 0;
+	filePath.clear();
 }
 
 TClassifier& TClassifier::operator=(const TClassifier& tc)
@@ -37,7 +39,7 @@ TClassifier& TClassifier::operator=(const TClassifier& tc)
 	count	= tc.count;
 	data	= tc.data;
 	Tname	= tc.Tname;
-
+	filePath = tc.filePath;
 	return *this;
 }
 
@@ -54,9 +56,27 @@ void TClassifier::ChangeName(String name)
 	}
 }
 
+void TClassifier::SaveClassifier(const char* fileName)
+{
+	bool flag = LoadClassifier(fileName);
+	if (flag == false) {
+		printf("在%s创建新的分类器文件\n\n", fileName);
+	}
+
+	FILE* fp = OpenFile(fileName, "w+");
+
+	fprintf_s(fp, "%llu\n\n", count);
+	for (size_t i = 0; i < count; i++)
+	{
+		WriteStructure(fp, i);
+	}
+
+	fclose(fp);
+}
+
 void TClassifier::SaveClassifier(void)
 {
-	LoadClassifier(DATAFOLDER"Target_Classifier.txt");
+	bool flag = LoadClassifier(DATAFOLDER"Target_Classifier.txt");
 	FILE* fp = OpenFile(DATAFOLDER"Target_Classifier.txt", "w+");
 
 	fprintf_s(fp, "%llu\n\n", count);
@@ -68,22 +88,29 @@ void TClassifier::SaveClassifier(void)
 	fclose(fp);
 }
 
-void TClassifier::LoadClassifier(const char* filePath)
+bool TClassifier::LoadClassifier(const char* fileName)
 {
 	FILE* fp = nullptr;
-	fopen_s(&fp, filePath, "r");
+	fopen_s(&fp, fileName, "r");
 	if (!fp) {
 		fprintf_s(stderr, "未找到分类器文件. \n");
+		return false;
 	}
 	else {
-		size_t length = 0;
+		//保存分类器路径
+		filePath = String(fileName);
+
+		size_t length = 0;	//分类器包含的特征数目
 		fscanf_s(fp, "%llu\n\n", &length);
 		for (size_t i = 0; i < length; i++)
 		{
 			ReadStructure(fp);
 		}
 
+		PrintClassifierMSG();
 		fclose(fp);
+
+		return true;
 	}
 }
 
@@ -284,6 +311,8 @@ bool TClassifier::IsFeatureEqual(const feature& TFea_in, const feature& TFea_std
 	err = fabs((double)TFea_in.minor_axis - (double)TFea_std.minor_axis) / (double)TFea_std.minor_axis;
 	err < errlimit ? flag++ : flag -= 2;
 
+	TFea_in.isHollow == TFea_std.isHollow ? flag++ : flag -= 4;
+
 	err = fabs(TFea_in.corners - TFea_std.corners);
 	err < 2.0 ? flag++ : flag -= 2;
 
@@ -349,4 +378,17 @@ void TClassifier::WriteStructure(FILE* fp, size_t count)
 	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[8].c_str(), fea.eccentricity);
 	fprintf_s(fp, "}\n\n");
 
+}
+
+void TClassifier::PrintClassifierMSG(void)
+{
+	//输出读取的特征数目
+	printf("成功读入分类器，发现已记录特征[%llu]个:\n", count);
+
+	//输出读取的特征名称
+	for (size_t i = 0; i < count; i++) {
+		printf("\tNO.%llu\t%s\n", i+1, Tname[i].c_str());
+	}
+
+	puts("");
 }

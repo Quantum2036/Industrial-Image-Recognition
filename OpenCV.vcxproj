@@ -147,7 +147,6 @@
     <ClCompile Include="TargetDisplay.cpp" />
     <ClCompile Include="TClassifier.cpp" />
     <ClCompile Include="TFeature.cpp" />
-    <ClCompile Include="Event.cpp" />
     <ClCompile Include="FList.cpp" />
     <ClCompile Include="OpenCV.cpp" />
     <ClCompile Include="Target.cpp" />
@@ -160,7 +159,6 @@
     <ClInclude Include="TargetDisplay.h" />
     <ClInclude Include="TClassifier.h" />
     <ClInclude Include="TFeature.h" />
-    <ClInclude Include="Event.h" />
     <ClInclude Include="FList.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Target.h" />

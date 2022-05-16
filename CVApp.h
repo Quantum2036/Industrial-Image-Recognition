@@ -45,6 +45,8 @@ public:
 	//添加分类器
 	void AddClassifier(TClassifier& classifier) {
 		pClassifier = &classifier;
+		if (pClassifier == nullptr) {
+		}
 	}
 
 	//在画布上显示处理过程
@@ -103,7 +105,7 @@ private:
 	void ProBinarization_Subprocess_1(void);
 	void ProBinarization_Subprocess_1_OnGrow(FList& tlist, uint nX, uint nY, uchar flag, uchar& count);
 	void ProBinarization_Subprocess_1_ApplyList(FList& tlist);
-	void ProBinarization_Subprocess_2(void);
+	void ProBinarization_Morph(void);
 
 	//随机扫描
 	void Scan_Random(void);

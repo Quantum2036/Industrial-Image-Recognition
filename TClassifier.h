@@ -24,6 +24,9 @@ private:
 	//与数据对应的描述字符串
 	std::vector<String> Tname;
 
+	//文件交换的路径
+	String filePath;
+
 public:
 
 	static String strfeatureName[];
@@ -35,10 +38,11 @@ public:
 	void ChangeName(String name);
 
 	//将分类器数据保存到文件
+	void SaveClassifier(const char* fileName);
 	void SaveClassifier(void);
 
 	//从文件中读取分类器
-	void LoadClassifier(const char* filePath);
+	bool LoadClassifier(const char* fileName);
 
 	//添加新类型，会检验是否重复
 	void AddNewClass(feature TFea, String name);
@@ -97,13 +101,13 @@ public:
 		return data.empty();
 	}
 
-	//输出分类器到控制台窗口
+	//测试用函数———输出分类器文本数据到控制台窗口
 	void PrintTClassifier_d(void);
 
 	//判断容器中是否存在特征TFea
 	bool IsExistTFeature(const feature& TFea, double errlimit = 0.15);
 
-	//判断两个特征是否相等
+	//判断两个特征是否相似
 	static	bool IsFeatureEqual(const feature& TFea_1, const feature& TFea_2, double errlimit);
 
 private:
@@ -120,6 +124,9 @@ private:
 	//向文件流fp中写入特征结构
 	void WriteStructure(FILE* fp, size_t count);
 
-	
+	//打印分类器基本信息
+	void PrintClassifierMSG(void);
+
+
 };
 

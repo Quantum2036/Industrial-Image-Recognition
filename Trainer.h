@@ -30,7 +30,7 @@ private:
 public:
 
 	//保存分类器文件
-	void SaveTClassifier(const char* Target_Name);
+	void SaveTClassifier(const char* Target_Name, const char* SavePath);
 
 private:
 

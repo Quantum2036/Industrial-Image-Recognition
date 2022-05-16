@@ -4,7 +4,9 @@
 #include<opencv2/opencv.hpp>
 using namespace cv;
 
+//Path
 #define DATAFOLDER	"C:\\量子泡沫\\Study\\数字图像处理\\data\\"
+#define LOGFOLDER	"C:\\量子泡沫\\Study\\数字图像处理\\data\\log\\"
 #define DESKTOP		"C:\\Users\\29462\\Desktop\\"
 
 #define ON_MOUSE_CALLBACK	true
@@ -16,13 +18,13 @@ using namespace cv;
 //对二值图像进行优化处理
 //	将会使用相当多的计算资源
 //	若非图像存在明显噪声，请尽量不要使用
-#define ENABLE_OPTIMIZE_BINARY_IMG	false
+#define ENABLE_OPTIMIZE_BINARY_IMG	true
 
 //输出调试信息到控制台
 #define DEBUG_PRINTF		false
 
 //显示扫描点
-#define DISPLAY_SCAN_POINT	false
+#define DISPLAY_SCAN_POINT	true
 
 //不同标记点的颜色
 #define COLOR_INSIDE_8UC1		150
@@ -50,3 +52,7 @@ enum class TargetState
 	TS_OutImage,	//部分在图像外的
 	TS_Normal,		//正常图片
 };
+
+//Message string
+#define MSG_LOADING_CLASSIFIER_SUCCESS "成功加载分类器！"
+#define MSG_LOADING_CLASSIFIER_FAILURE "加载分类器失败！" 

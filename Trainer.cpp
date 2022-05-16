@@ -56,12 +56,12 @@ void Trainer::PushFeatureData(std::vector<Target>& target, String fileName)
 	}
 }
 
-void Trainer::SaveTClassifier(const char* Target_Name)
+void Trainer::SaveTClassifier(const char* Target_Name, const char* SavePath)
 {
 	target_Name = String(Target_Name);
 
 	Analysis();
-	target_Class.SaveClassifier();
+	target_Class.SaveClassifier(SavePath);
 }
 
 void Trainer::threadProcess_8(std::vector<String> image_names, Mat& background)
@@ -254,7 +254,7 @@ void Trainer::Sieve_2(double errlimit)
 
 	target_Class.clear();
 	for (size_t i = 0; i < count; i++) {
-		SaveData_d(String(DESKTOP).append(StrAddChar(target_Name, i).c_str()), featrue_List[i]);
+		SaveData_d(String(LOGFOLDER).append(StrAddChar(target_Name, i).c_str()), featrue_List[i]);
 		target_Class.AddNewClass(getAverageFeature(featrue_List[i]), StrAddChar(target_Name, i));
 	}
 

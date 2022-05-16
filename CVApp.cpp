@@ -1,6 +1,5 @@
 #include "CVApp.h"
 #include "TargetDisplay.h"
-#include "Event.h"
 #include <time.h>
 #include <io.h>
 
@@ -103,7 +102,7 @@ void CVApp::PostProcessing(void)
 	bgImgs.clear();
 #endif
 
-	Scan();
+	Scan(ScanMode::SMode_random);
 }
 
 //显示输出函数
@@ -111,10 +110,6 @@ void CVApp::PostProcessing(void)
 void CVApp::ShowWindows(bool cb)
 {
 	CreateWindows();
-
-	if (cb) {
-		setMouseCallback(strWinName_Test[2], onMouse, &(testImgs[2]));
-	}
 
 #if DEBUG_PRINTF
 	imshow(strWinName_Test[2], testImgs[2]);
@@ -309,7 +304,7 @@ void CVApp::ProBinarization(void)
 {
 	fprintf_s(stderr, "正在优化二值图... \n");
 	//ProBinarization_Subprocess_1();
-	ProBinarization_Subprocess_2();
+	ProBinarization_Morph();
 }
 
 void CVApp::ProBinarization_Subprocess_1(void)
@@ -364,7 +359,7 @@ void CVApp::ProBinarization_Subprocess_1_ApplyList(FList& tlist)
 	}
 }
 
-void CVApp::ProBinarization_Subprocess_2(void)
+void CVApp::ProBinarization_Morph(void)
 {
 	Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
 	morphologyEx(testImgs[2], testImgs[2], MORPH_CLOSE, kernel);
@@ -404,31 +399,33 @@ void CVApp::Scan_Random(void)
 	//随机化
 	time_t curTime;
 	time(&curTime);
-	static int randNum = 0;
+	static int randNum = 0; 
 	RNG rng = RNG(curTime + randNum);
 	randNum = (int)rng.uniform(0x00000000, 0xFFFFFFFF);		//为下次随机化添加随机变量
 
-	Point pt;
-	size_t length = sizeImg.area() / 100;
+	Point pt;	//将要进行扫描的点的坐标
+	size_t length = sizeImg.area() / 100;	//扫描的点的个数
 
-	for (size_t i = 0; i < length; i++)
+	while (length)
 	{
 		pt.x = rng.uniform(0, sizeImg.width);
 		pt.y = rng.uniform(0, sizeImg.height);
 
-		if (!IsExistTarget(pt)) {
-			Target tPixel(testImgs[2], pt);
+		//当预备扫描点在某个已记录图像中，弃用该随机点
+		if (IsExistTarget(pt)) {
+			continue;
+		}
+		length--;
 
-			if (tPixel.GetTargetState() != TargetState::TS_Null) {
-				target.emplace_back(tPixel);
-			}
+		Target tPixel(testImgs[2], pt);
+		if (tPixel.GetTargetState() == TargetState::TS_Normal) {
+			target.emplace_back(tPixel);
 		}
 
 #if DISPLAY_SCAN_POINT
 		testImgs[2].at<uchar>(pt) = COLOR_SCAN_POINT_8UC1;
 #endif // DISPLAY_SCAN_POINT
 	}
-
 }
 
 void CVApp::Scan_Grid(void)
@@ -438,10 +435,10 @@ void CVApp::Scan_Grid(void)
 	for (int i = 0; i < sizeImg.width; i += MIN_SCAN_GAP) {
 		for (int j = 0; j < sizeImg.height; j += MIN_SCAN_GAP) {
 			pt = Point(i, j);
-			
+
 			if (!IsExistTarget(pt)) {
 				Target tPixel(testImgs[2], pt);
-				if (tPixel.GetTargetState() != TargetState::TS_Null) {
+				if (tPixel.GetTargetState() == TargetState::TS_Normal) {
 					target.emplace_back(tPixel);
 				}
 			}
@@ -465,7 +462,7 @@ void CVApp::Scan_Pixel(void)
 			if (!IsExistTarget(pt)) {
 				Target tPixel(testImgs[2], pt);
 
-				if (tPixel.GetTargetState() != TargetState::TS_Null) {
+				if (tPixel.GetTargetState() == TargetState::TS_Normal) {
 					target.emplace_back(tPixel);
 				}
 			}

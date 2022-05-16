@@ -18,9 +18,6 @@
     <ClCompile Include="OpenCV.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Event.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Target.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -50,9 +47,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Event.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>

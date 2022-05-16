@@ -38,7 +38,7 @@ void TInformation::operator=(const TInformation& TInfo)
 
 bool TInformation::IsInside(Point pt)
 {
-	if (pt.inside(rect_Box)) {
+	if (pt.inside(rect_Box)) {	//点在目标的外接矩形内
 		if (TRectImg.at<uchar>(PtConvers(pt)) != 0) {
 			return true;
 		}
