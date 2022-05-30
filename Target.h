@@ -3,10 +3,12 @@
 #include "TFeature.h"
 #include "TInformation.h"
 
-//程序捕获到的目标，螺丝，螺帽之类的玩意儿
+/// <summary>
+/// 程序捕获到的目标，螺丝，螺帽之类的玩意儿
+/// </summary>
 class Target
 {
-/*************构造 & 析构*************/
+//	构造 & 析构
 public:
 	Target();
 	Target(const Target& tTemp);
@@ -16,7 +18,7 @@ public:
 	Target& operator=(const Target& tTemp);
 	friend class TargetDisplay;
 
-/*************数据*************/
+//	数据
 public:
 
 	//目标位置信息
@@ -44,7 +46,7 @@ private:
 	//目标状态
 	TargetState TState;
 
-/*************方法*************/
+//	方法
 public:
 
 	//返回目标的状态信息

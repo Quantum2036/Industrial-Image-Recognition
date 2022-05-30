@@ -1,11 +1,18 @@
 #pragma once
 #include "pch.h"
 
-//圆形模板匹配
+/// <summary>
+/// 圆形模板匹配
+/// </summary>
 class CircleMatching
 {
 //	构造 &　析构
 public:
+	/// <summary>
+	/// 唯一构造函数
+	/// </summary>
+	/// <param name="ptest">要进行模板匹配的图像指针，必须为二值图像</param>
+	/// <param name="radius">结构元素的半径</param>
 	CircleMatching(Mat* ptest, const uchar& radius);
 
 //	数据

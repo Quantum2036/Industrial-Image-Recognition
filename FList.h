@@ -3,6 +3,9 @@
 #include <forward_list>
 #include <iterator>
 
+/// <summary>
+/// 存储Point结构单向链表
+/// </summary>
 class FList
 {
 //	构造 & 析构

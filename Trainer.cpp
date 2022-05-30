@@ -61,6 +61,7 @@ void Trainer::SaveTClassifier(const char* Target_Name, const char* SavePath)
 	target_Name = String(Target_Name);
 
 	Analysis();
+
 	target_Class.SaveClassifier(SavePath);
 }
 
