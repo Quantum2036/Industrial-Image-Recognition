@@ -1,5 +1,7 @@
 #include "TClassifier.h"
 #include <io.h>
+#include "TFeature.h"
+#include <algorithm>
 
 String TClassifier::strfeatureName[] = {
 	"size",
@@ -43,19 +45,6 @@ TClassifier& TClassifier::operator=(const TClassifier& tc)
 	return *this;
 }
 
-void TClassifier::ChangeName(String name)
-{
-	for (size_t i = 0; i < count; i++) {
-		size_t pos = Tname[i].find("unnamed");
-		if (pos == String::npos) {
-			continue;
-		}
-
-
-
-	}
-}
-
 void TClassifier::SaveClassifier(const char* fileName)
 {
 	bool flag = LoadClassifier(fileName);
@@ -65,7 +54,7 @@ void TClassifier::SaveClassifier(const char* fileName)
 
 	FILE* fp = OpenFile(fileName, "w+");
 
-	fprintf_s(fp, "%llu\n\n", count);
+	fprintf_s(fp, "%zu\n\n", count);
 	for (size_t i = 0; i < count; i++)
 	{
 		WriteStructure(fp, i);
@@ -76,16 +65,13 @@ void TClassifier::SaveClassifier(const char* fileName)
 
 void TClassifier::SaveClassifier(void)
 {
-	bool flag = LoadClassifier(DATAFOLDER"Target_Classifier.txt");
-	FILE* fp = OpenFile(DATAFOLDER"Target_Classifier.txt", "w+");
-
-	fprintf_s(fp, "%llu\n\n", count);
-	for (size_t i = 0; i < count; i++)
+	if (filePath.empty())
 	{
-		WriteStructure(fp, i);
+		fprintf_s(stderr, "ERROR: 未找到分类器文件保存位置\n");
+		return;
 	}
 
-	fclose(fp);
+	SaveClassifier(filePath.c_str());
 }
 
 bool TClassifier::LoadClassifier(const char* fileName)
@@ -93,15 +79,15 @@ bool TClassifier::LoadClassifier(const char* fileName)
 	FILE* fp = nullptr;
 	fopen_s(&fp, fileName, "r");
 	if (!fp) {
-		fprintf_s(stderr, "未找到分类器文件. \n");
+		fprintf_s(stderr, "ERROR: 未找到分类器文件:%s\n", fileName);
 		return false;
 	}
 	else {
 		//保存分类器路径
 		filePath = String(fileName);
 
-		size_t length = 0;	//分类器包含的特征数目
-		fscanf_s(fp, "%llu\n\n", &length);
+		size_t length;	//分类器包含的特征数目
+		fscanf_s(fp, "%zu\n\n", &length);
 		for (size_t i = 0; i < length; i++)
 		{
 			ReadStructure(fp);
@@ -114,14 +100,14 @@ bool TClassifier::LoadClassifier(const char* fileName)
 	}
 }
 
-void TClassifier::AddNewClass(feature TFea, String name)
+void TClassifier::AddNewClass(const feature& TFea, const String& name)
 {
 	if (IsExistName(name)) {
 		fprintf_s(stderr, "WARNING: 已存在命名\t[%s]\n", name.c_str());
 		return;
 	}
 	else if (IsExistTFeature(TFea, 0.10)) {
-		fprintf_s(stderr, "WARNING: 已存在记录的特征标识\t[%s]\n", getTC(TFea).c_str());
+		fprintf_s(stderr, "WARNING: 已存在记录的特征标识\t[%s]\n", classify(TFea).c_str());
 		return;
 	}
 
@@ -130,143 +116,58 @@ void TClassifier::AddNewClass(feature TFea, String name)
 	count++;
 }
 
-String TClassifier::getTC(const feature& TFea)
-{
-	for (size_t i = 0; i < count; i++) {
-		if (IsFeatureEqual(TFea, data.at(i), 0.14)) {
-			return Tname.at(i);
-		}
-	}
-	return String("unknown");
-}
-
 String TClassifier::classify(const feature& TFea)
 {
-	std::vector<uint> arr(count, 0);
-	
-	double	big_number = 1E15;
-	double	min_err = big_number;	//最小误差，进行比较前先设置为一极大数
-	double	err = 0.0;				//记录的当前误差
-
-	//将变量重置
-	auto lfunc_reset = [&] {min_err = big_number;};
-	auto minus = [](uint x, uint y) -> double {return (double)x - (double)y; };
-	
-	//面积
-	for (size_t i = 0; i < count; i++)
-	{
-		err = fabs(minus(data[i].size,TFea.size));
-		if (err < min_err) min_err = err;
-	}
+	fea_array feature_data = TFeature::Struct2Array(TFea);
+	std::vector<fea_array> feature_list(count);
 	for (size_t i = 0; i < count; i++) {
-		if (fabs(minus(data[i].size, TFea.size)) == min_err) arr[i]++;
+		feature_list.at(i) = TFeature::Struct2Array(data.at(i));
 	}
 
-	//周长
-	lfunc_reset();
-	for (size_t i = 0; i < count; i++)
+	//得到待分类特征与记录特征的误差表
+	for (auto it = feature_list.begin(); it != feature_list.end(); it++)
 	{
-		err = fabs(minus(data[i].peripheral, TFea.peripheral));
-		if (err < min_err) min_err = err;
-	}
-	for (size_t i = 0; i < count; i++) {
-		if (fabs(minus(data[i].peripheral, TFea.peripheral)) == min_err) arr[i]++;
-	}
-
-	//长轴
-	lfunc_reset();
-	for (size_t i = 0; i < count; i++)
-	{
-		err = fabs(minus(data[i].major_axis, TFea.major_axis));
-		if (err < min_err) min_err = err;
-	}
-	for (size_t i = 0; i < count; i++) {
-		if (fabs(minus(data[i].major_axis, TFea.major_axis)) == min_err) arr[i]++;
-	}
-
-	//短轴
-	lfunc_reset();
-	for (size_t i = 0; i < count; i++)
-	{
-		err = fabs(minus(data[i].minor_axis, TFea.minor_axis));
-		if (err < min_err) min_err = err;
-	}
-	for (size_t i = 0; i < count; i++) {
-		if (fabs(minus(data[i].minor_axis, TFea.minor_axis)) == min_err) arr[i]++;
-	}
-
-	//Hollow
-	lfunc_reset();
-	for (size_t i = 0; i < count; i++)
-	{
-		if (TFea.isHollow == data[i].isHollow) {
-			arr[i] += 2;
+		for (size_t i = 0; i < FEATURE_SIZE; i++) {
+			(*it)[i] = fabs( (*it)[i] - feature_data[i] );
 		}
 	}
 
-	//角点
-	lfunc_reset();
-	for (size_t i = 0; i < count; i++)
+	//寻找综合误差最小的记录
+	std::vector<size_t> score_sum(count);
+	struct _key_value { size_t key; double value; };
+	std::vector<struct _key_value> sorted(count);
+	for (size_t order = 0; order < FEATURE_SIZE; order++)
 	{
-		err = fabs(minus(data[i].corners, TFea.corners));
-		if (err < min_err) min_err = err;
-	}
-	for (size_t i = 0; i < count; i++) {
-		if (fabs(minus(data[i].corners, TFea.corners)) == min_err) arr[i]++;
-	}
+		for (size_t i = 0; i < count; i++)
+		{
+			sorted.at(i).key = i;
+			sorted.at(i).value = feature_list.at(i)[order];
+		}
 
-	//矩形度
-	lfunc_reset();
-	for (size_t i = 0; i < count; i++)
-	{
-		err = fabs(data[i].Rectangularity - TFea.Rectangularity);
-		if (err < min_err) min_err = err;
-	}
-	for (size_t i = 0; i < count; i++) {
-		if (fabs(data[i].Rectangularity - TFea.Rectangularity) == min_err) arr[i]++;
-	}
+		std::sort(
+			sorted.begin(),
+			sorted.end(),
+			[](struct _key_value a, struct _key_value b) {return a.value < b.value; });
 
-	//圆形度
-	lfunc_reset();
-	for (size_t i = 0; i < count; i++)
-	{
-		err = fabs(data[i].consistency - TFea.consistency);
-		if (err < min_err) min_err = err;
-	}
-	for (size_t i = 0; i < count; i++) {
-		if (fabs(data[i].consistency - TFea.consistency) == min_err) arr[i]++;
-	}
-
-	//偏心率
-	lfunc_reset();
-	for (size_t i = 0; i < count; i++)
-	{
-		err = fabs(data[i].eccentricity - TFea.eccentricity);
-		if (err < min_err) min_err = err;
-	}
-	for (size_t i = 0; i < count; i++) {
-		if (fabs(data[i].eccentricity - TFea.eccentricity) == min_err) arr[i]++;
-	}
-
-	//统计最高得分
-	lfunc_reset();
-	size_t num = 0;
-	size_t max_score = 0;
-	for (size_t i = 0; i < count; i++)
-	{
-		if (arr[i] > max_score) {
-			max_score = arr[i];
-			num = i;
+		size_t score = count;
+		for (auto it = sorted.cbegin(); it != sorted.cend(); it++)
+		{
+			score_sum.at(it->key) += score;
+			score--;
 		}
 	}
 
-	return Tname[num];
+	size_t max_key = std::distance(
+									score_sum.cbegin(),
+									std::max_element(score_sum.cbegin(), score_sum.cend()));
+
+	return Tname[max_key];
 }
 
 bool TClassifier::IsExistTFeature(const feature& TFea, double errlimit)
 {
-	for (int i = 0; i < count; i++) {
-		if (IsFeatureEqual(TFea, data.at(i), errlimit)) {
+	for (auto it = data.cbegin(); it != data.cend(); it++) {
+		if (IsFeatureEqual(TFea, *it, errlimit)) {
 			return true;
 		}
 	}
@@ -276,8 +177,8 @@ bool TClassifier::IsExistTFeature(const feature& TFea, double errlimit)
 
 bool TClassifier::IsExistName(const String& name)
 {
-	for (int i = 0; i < count; i++)	{
-		if (!name.compare(Tname.at(i))) {
+	for (auto it = Tname.cbegin(); it < Tname.cend(); it++) {
+		if (!name.compare(*it)) {
 			return true;
 		}
 	}
@@ -287,9 +188,8 @@ bool TClassifier::IsExistName(const String& name)
 
 void TClassifier::PrintTClassifier_d(void)
 {
-	fprintf_s(stdout, "%llu\n\n", count);
-	for (size_t i = 0; i < count; i++)
-	{
+	fprintf_s(stdout, "分类器总数: %zu\n\n", count);
+	for (size_t i = 0; i < count; i++) {
 		WriteStructure(stdout, i);
 	}
 }
@@ -311,10 +211,7 @@ bool TClassifier::IsFeatureEqual(const feature& TFea_in, const feature& TFea_std
 	err = fabs((double)TFea_in.minor_axis - (double)TFea_std.minor_axis) / (double)TFea_std.minor_axis;
 	err < errlimit ? flag++ : flag -= 2;
 
-	TFea_in.isHollow == TFea_std.isHollow ? flag++ : flag -= 4;
-
-	err = fabs(TFea_in.corners - TFea_std.corners);
-	err < 2.0 ? flag++ : flag -= 2;
+	TFea_in.isHollow == TFea_std.isHollow ? flag += 2 : flag -= 2;
 
 	err = fabs(TFea_in.Rectangularity - TFea_std.Rectangularity) / TFea_std.Rectangularity;
 	err < errlimit ? flag++ : flag -= 2;
@@ -361,10 +258,16 @@ void TClassifier::ReadStructure(FILE* fp)
 	AddNewClass(thisTFea, tname);
 }
 
-void TClassifier::WriteStructure(FILE* fp, size_t count)
+void TClassifier::WriteStructure(FILE* fp, size_t num)
 {	
-	String tname = Tname.at(count);
-	feature fea = data.at(count);
+	/// <note>
+	/// 第二个参数不直接传结构的理由：
+	/// 写入时要同时获取这个特征的结构和命名
+	/// 不要想着优化了
+	/// </note>
+
+	String tname = Tname.at(num);
+	feature fea = data.at(num);
 
 	fprintf_s(fp, "\" %s \" = {\n", tname.c_str());
 	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[0].c_str(), fea.size);
@@ -377,18 +280,16 @@ void TClassifier::WriteStructure(FILE* fp, size_t count)
 	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[7].c_str(), fea.consistency);
 	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[8].c_str(), fea.eccentricity);
 	fprintf_s(fp, "}\n\n");
-
 }
 
 void TClassifier::PrintClassifierMSG(void)
 {
 	//输出读取的特征数目
-	printf("成功读入分类器，发现已记录特征[%llu]个:\n", count);
+	fprintf_s(stdout, "成功读入分类器，发现已记录特征[%zu]个:\n", count);
 
 	//输出读取的特征名称
 	for (size_t i = 0; i < count; i++) {
-		printf("\tNO.%llu\t%s\n", i+1, Tname[i].c_str());
+		fprintf_s(stdout, "\tNO.%zu\t%s\n", i+1, Tname[i].c_str());
 	}
-
 	puts("");
 }

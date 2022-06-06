@@ -7,8 +7,8 @@ constexpr char CLASSIFIER_PATH[] = "C:\\量子泡沫\\Study\\数字图像处理\
 
 int main(int argc, char** argv) {
 
-	Mat bgImg = imread(DATAFOLDER"pattern.pgm", 0);
-	Mat tImg  = imread(DATAFOLDER"test2.pgm", 0);
+	Mat bgImg = imread(DATAFOLDER"pattern.pgm", 0);	//读背景图像
+	Mat tImg  = imread(DATAFOLDER"test2.pgm", 0);	//读入测试图像
 
 
 	////训练得到分类器

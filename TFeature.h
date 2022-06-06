@@ -1,6 +1,9 @@
 #pragma once
 #include "pch.h"
 #include "FList.h"
+#include <array>
+
+using fea_array = std::array<double, FEATURE_SIZE>;
 
 typedef struct _Fearture {
 	uint size				= 0;		//面积
@@ -35,6 +38,40 @@ public:
 	Point centre;
 
 //	方法
+public:
+
+	/// <summary>
+	/// 将特征结构转化成特征数组形式便于计算
+	/// </summary>
+	/// <param name="fea">输入特征</param>
+	/// <returns>输出数组</returns>
+	static fea_array Struct2Array(feature fea) {
+		fea_array arr{0.0};
+		arr[0] = (double)fea.size;			arr[1] = (double)fea.peripheral;
+		arr[2] = (double)fea.major_axis;	arr[3] = (double)fea.minor_axis;
+		arr[4] = (double)fea.isHollow;		arr[5] = fea.Rectangularity;
+		arr[6] = fea.consistency;			arr[7] = fea.eccentricity;
+
+		return arr;
+	}
+
+	/// <summary>
+	/// 将特征数组转化成特征结构形式便于存储表示
+	/// </summary>
+	/// <param name="arr">输入数组</param>
+	/// <returns>输出特征</returns>
+	static feature Array2Struct(fea_array arr) {
+		feature fea;
+		fea.size		= (uint)arr[0];		fea.peripheral		= (uint)arr[1];
+		fea.major_axis	= (uint)arr[2];		fea.minor_axis		= (uint)arr[3];
+		fea.isHollow	= arr[4] > 0.5 ? 1 : 0;	
+		fea.Rectangularity	= arr[5];
+		fea.consistency		= arr[6];	
+		fea.eccentricity	= arr[7];
+
+		return fea;
+	}
+
 private:
 
 	//计算最小外接矩形

@@ -37,6 +37,9 @@ using namespace cv;
 //	能够锁定的最小目标面积
 #define MIN_TARGET_SIZE			50
 
+//	提取的特征个数
+#define FEATURE_SIZE			8
+
 //	指定扫描模式
 enum class ScanMode
 {

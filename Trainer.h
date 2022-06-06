@@ -63,7 +63,11 @@ private:
 	//二次筛选
 	void Sieve_2(double errlimit = 0.15);
 
-	//由一组特征计算其平均特征值
+	/// <summary>
+	/// 由一组特征计算其平均特征值
+	/// </summary>
+	/// <param name="feas">用于计算平均值的特征集合</param>
+	/// <returns>平均特征值</returns>
 	feature getAverageFeature(const std::vector<feature>& feas);
 };
 

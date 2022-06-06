@@ -55,10 +55,7 @@ void TargetDisplay::DrawText(Target& obj, String name)
 
 void TargetDisplay::SetColor(FList& fl, Scalar color)
 {
-	auto it = fl.begin();
-	auto it_end = fl.end();
-
-	for (; it != it_end; it++) {
+	for (auto it = fl.begin(); it != fl.end(); it++) {
 		canvas->at<Vec3b>(*it)[0] = (uchar)color.val[0];
 		canvas->at<Vec3b>(*it)[1] = (uchar)color.val[1];
 		canvas->at<Vec3b>(*it)[2] = (uchar)color.val[2];

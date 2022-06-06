@@ -133,18 +133,7 @@ void CVApp::ShowTatget(void)
 {
 	TargetDisplay displayer(&testImgs[3]);
 
-	auto it = target.begin();
-	auto it_end = target.end();
-
-	//for (; it != it_end; it++) {
-	//	displayer.DrawInside(*it);
-	//	displayer.DrawPeripheral(*it);
-	//}
-
-	//it = target.begin();
-	//it_end = target.end();
-
-	for (; it != it_end; it++) {
+	for (auto it = target.begin(); it != target.end(); it++) {
 		displayer.DrawList(it->SUSAN_list, Scalar(0, 0, 255));
 		displayer.DrawCross(*it);
 		displayer.DrawBox(*it);
@@ -383,12 +372,11 @@ size_t CVApp::Scan(ScanMode mode)
 		break;
 	default:
 		fprintf_s(stderr, "WARNING: 未定义该扫描模式  默认启用网格扫描 \n");
-		Scan_Random();
+		Scan_Grid();
 	}
 
 #if DEBUG_PRINTF
-	puts("扫描已完成");
-	printf("捕获目标数: %zd\n\n", target.size());
+	fprintf_s(stdout, "扫描已完成 \n捕获目标数: %zu\n\n", target.size());
 #endif // DEBUG_PRINTF
 
 	return target.size();
@@ -445,7 +433,7 @@ void CVApp::Scan_Grid(void)
 
 #if DISPLAY_SCAN_POINT
 			testImgs[2].at<uchar>(pt) = COLOR_SCAN_POINT_8UC1;
-#endif // DISPLAY_SCAN_POINT
+#endif // 在二值图像中显示扫描点
 
 		}
 	}

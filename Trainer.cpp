@@ -1,4 +1,5 @@
 #include "Trainer.h"
+#include "TClassifier.h"
 #include <io.h>
 #include <thread>
 #include <mutex>
@@ -14,7 +15,7 @@ Trainer::Trainer(Mat& background, const char* folderPath, const char* fileType)
 	std::vector<String> testImgs = VaildFileList( getAllFile(folderPath, fileType) );
 	size_t length = testImgs.size();	//待扫描的图像数目
 
-	fprintf_s(stdout, "在目录 %s 发现[%llu]个可读取图片文件.\n", folderPath, length);
+	fprintf_s(stdout, "在目录 %s 发现[%zu]个可读取图片文件.\n", folderPath, length);
 	fprintf_s(stdout, "扫描中...\t");
 
 	TickMeter timer;	//计时器
@@ -24,7 +25,7 @@ Trainer::Trainer(Mat& background, const char* folderPath, const char* fileType)
 	timer.stop();
 
 	fprintf_s(stdout, "完成\t平均扫描用时 %.2lf ms\t", timer.getTimeMilli() / length);
-	fprintf_s(stdout, "捕获 有效目标 [%llu]\n", feature_Data.getSize());
+	fprintf_s(stdout, "捕获 有效目标 [%zu]\n", feature_Data.getSize());
 }
 
 String Trainer::StrAddChar(const String& str, size_t length)
@@ -264,32 +265,24 @@ void Trainer::Sieve_2(double errlimit)
 
 feature Trainer::getAverageFeature(const std::vector<feature>& feas)
 {
-	size_t sum = feas.size();
-	feature feature_sum;
-	if (sum) {
-		for (size_t i = 0; i < sum; i++)
-		{
-			feature_sum.size += feas[i].size;
-			feature_sum.peripheral += feas[i].peripheral;
-			feature_sum.major_axis += feas[i].major_axis;
-			feature_sum.minor_axis += feas[i].minor_axis;
-			feature_sum.isHollow += feas[i].isHollow;
-			feature_sum.corners += feas[i].corners;
-			feature_sum.Rectangularity += feas[i].Rectangularity;
-			feature_sum.consistency += feas[i].consistency;
-			feature_sum.eccentricity += feas[i].eccentricity;
-		}
-
-		feature_sum.size = (uint)(feature_sum.size / (double)sum);
-		feature_sum.peripheral = (uint)(feature_sum.peripheral / (double)sum);
-		feature_sum.major_axis = (uint)(feature_sum.major_axis / (double)sum);
-		feature_sum.minor_axis = (uint)(feature_sum.minor_axis / (double)sum);
-		feature_sum.isHollow = (feature_sum.isHollow / (double)sum) > 0.5 ? 1 : 0;
-		feature_sum.corners = (uint)(feature_sum.corners / (double)sum);
-		feature_sum.Rectangularity /= (double)sum;
-		feature_sum.consistency /= (double)sum;
-		feature_sum.eccentricity /= (double)sum;
+	if (feas.empty()) {
+		fprintf_s(stderr, "ERROR: 待计算平均值的特征集合为空\n");
+		exit(EXIT_FAILURE);
 	}
 
-	return feature_sum;
+	fea_array arr{};
+	fea_array arr_sum{};
+	for (auto it = feas.cbegin(); it != feas.cend(); it++) {
+		arr = TFeature::Struct2Array(*it);
+
+		for (size_t i = 0; i < FEATURE_SIZE; i++) {
+			arr_sum[i] += arr[i];
+		}
+	}
+
+	for (size_t i = 0; i < FEATURE_SIZE; i++) {
+		arr_sum[i] /= feas.size();
+	}
+
+	return TFeature::Array2Struct(arr_sum);
 }

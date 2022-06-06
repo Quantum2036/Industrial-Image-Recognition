@@ -3,7 +3,7 @@
 #include "Target.h"
 
 /// <summary>
-/// 在画布图像上显示目标Target
+/// 在画布图像上显示目标Target，为Target类的友元
 /// </summary>
 class TargetDisplay
 {
@@ -41,11 +41,20 @@ public:
 	//用方框在画布上标记出目标
 	void DrawBox(Target& obj, Scalar color_box = Scalar(0, 255, 0));
 
-	//添加文字
+	/// <summary>
+	/// 在画布上为目标添加文字
+	/// </summary>
+	/// <param name="obj">要进行添加文字的目标</param>
+	/// <param name="name">要显示的文字</param>
 	void DrawText(Target& obj, String name);
 
 private:
 
+	/// <summary>
+	/// 更改画布中指定点的颜色
+	/// </summary>
+	/// <param name="fl">要更改颜色的点的坐标</param>
+	/// <param name="color">要更改的颜色</param>
 	void SetColor(FList& fl, Scalar color);
 };
 

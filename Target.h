@@ -68,10 +68,5 @@ private:
 	//计算角点数——SUSAN方法
 	uint CalCorners(void);
 
-	//计算角点数——形态学方法
-	uint CalCorners_morph(void) {
-		return 0;
-	}
-
 };
 
