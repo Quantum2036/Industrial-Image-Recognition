@@ -17,44 +17,67 @@ private:
 	//画布
 	Mat* canvas;
 
+public:
+
+	static const Scalar red;
+	static const Scalar green;
+	static const Scalar orange;
+	static const Scalar black50;
+	static const Scalar black20;
+
 //	方法
 public:
 
 	/// <summary>
-	/// 为点列中所有点的颜色赋值
+	/// 更改画布中指定点的颜色
 	/// </summary>
-	/// <param name="list">点列</param>
-	/// <param name="color">颜色值</param>
-	void DrawList(std::vector<Point> list, Scalar color);
-
-	//用颜色填充目标的内部和边界
-	void DrawInside(Target& obj,  Scalar color_inside = Scalar(230, 230, 230));
-	void DrawPeripheral(Target& obj, Scalar color_peripheral = Scalar(150, 150, 150));
+	/// <param name="fl">要更改颜色的点的坐标集合</param>
+	/// <param name="color">要更改的颜色</param>
+	void DrawList(FList& list, Scalar color);
 
 	/// <summary>
-	/// 在目标中心画出十字记号
+	/// 用颜色填充目标的内部
 	/// </summary>
-	/// <param name="obj">目标</param>
-	/// <param name="color_cross">十字记号的颜色</param>
-	void DrawCross(Target& obj, Scalar color_cross = Scalar(51, 153, 255));
+	/// <param name="obj">要填充的目标</param>
+	/// <param name="color_inside">填充颜色</param>
+	void DrawInside(Target& obj,  Scalar color_inside = black20);
 
-	//用方框在画布上标记出目标
-	void DrawBox(Target& obj, Scalar color_box = Scalar(0, 255, 0));
+	/// <summary>
+	/// 用颜色填充目标的边界
+	/// </summary>
+	/// <param name="obj">要填充的目标</param>
+	/// <param name="color_peripheral">填充颜色</param>
+	void DrawPeripheral(Target& obj, Scalar color_peripheral = black50);
+
+	/// <summary>
+	/// 在目标中心画出反色的十字记号
+	/// </summary>
+	/// <param name="obj">要标记的目标</param>
+	void DrawCross(Target& obj);
+
+	/// <summary>
+	/// 用方框在画布上标记出目标
+	/// </summary>
+	/// <param name="obj">要标记的目标</param>
+	/// <param name="color">方框颜色</param>
+	void DrawBox(Target& obj, Scalar color = green);
 
 	/// <summary>
 	/// 在画布上为目标添加文字
 	/// </summary>
 	/// <param name="obj">要进行添加文字的目标</param>
 	/// <param name="name">要显示的文字</param>
-	void DrawText(Target& obj, String name);
+	/// <param name="color">文字的颜色</param>
+	void DrawText(Target& obj, String name, Scalar color = red);
 
 private:
 
 	/// <summary>
-	/// 更改画布中指定点的颜色
+	/// 将画布上像素点的反色
 	/// </summary>
-	/// <param name="fl">要更改颜色的点的坐标</param>
-	/// <param name="color">要更改的颜色</param>
-	void SetColor(FList& fl, Scalar color);
+	/// <param name="pt"></param>
+	/// <returns></returns>
+	void Reverse(Point pt);
+
 };
 

@@ -27,18 +27,16 @@ using namespace cv;
 #define DISPLAY_SCAN_POINT	true
 
 //不同标记点的颜色
-#define COLOR_INSIDE_8UC1		150
-#define COLOR_PERIPHERAL_8UC1	230
 #define COLOR_SCAN_POINT_8UC1	80
 
 //最小扫描间隔
-#define MIN_SCAN_GAP			5
+constexpr int MIN_SCAN_GAP = 5;
 
 //	能够锁定的最小目标面积
-#define MIN_TARGET_SIZE			50
+constexpr int MIN_TARGET_SIZE = 50;
 
 //	提取的特征个数
-#define FEATURE_SIZE			8
+constexpr int FEATURE_SIZE = 8;
 
 //	指定扫描模式
 enum class ScanMode

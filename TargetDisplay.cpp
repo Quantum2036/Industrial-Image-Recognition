@@ -1,5 +1,12 @@
 #include "TargetDisplay.h"
 
+const Scalar TargetDisplay::red		= Scalar(0, 0, 255);
+const Scalar TargetDisplay::green	= Scalar(0, 255, 0);
+const Scalar TargetDisplay::orange	= Scalar(51, 153, 255);
+const Scalar TargetDisplay::black20	= Scalar(204, 204, 204);
+const Scalar TargetDisplay::black50 = Scalar(128, 128, 128);
+
+
 TargetDisplay::TargetDisplay()
 {
 	canvas = nullptr;
@@ -10,9 +17,9 @@ TargetDisplay::TargetDisplay(Mat* pImgCanvas)
 	canvas = pImgCanvas;
 }
 
-void TargetDisplay::DrawList(std::vector<Point> list, Scalar color)
+void TargetDisplay::DrawList(FList& list, Scalar color)
 {
-	for (auto it = list.begin(); it < list.end(); it++) {
+	for (auto it = list.begin(); it != list.end(); it++) {
 		canvas->at<Vec3b>(*it)[0] = (uchar)color.val[0];
 		canvas->at<Vec3b>(*it)[1] = (uchar)color.val[1];
 		canvas->at<Vec3b>(*it)[2] = (uchar)color.val[2];
@@ -21,43 +28,48 @@ void TargetDisplay::DrawList(std::vector<Point> list, Scalar color)
 
 void TargetDisplay::DrawInside(Target& obj, Scalar color_inside)
 {
-	SetColor(obj.tlist, color_inside);
+	DrawList(obj.tlist, color_inside);
 }
 
 void TargetDisplay::DrawPeripheral(Target& obj, Scalar color_peripheral)
 {
-	SetColor(obj.plist, color_peripheral);
+	DrawList(obj.plist, color_peripheral);
 }
 
-void TargetDisplay::DrawCross(Target& obj, Scalar color_cross)
+void TargetDisplay::DrawCross(Target& obj)
 {
-	Point centre = obj.TFea.centre;
-	line(*canvas, Point(centre.x - 5, centre.y), Point(centre.x + 5, centre.y), color_cross);
-	line(*canvas, Point(centre.x, centre.y - 5), Point(centre.x, centre.y + 5), color_cross);
+	constexpr int cross_radius = 10;
+	int centre_X = obj.TFea.centre.x;
+	int centre_Y = obj.TFea.centre.y;
+	
+	for (int i = centre_X - cross_radius; i < centre_X + cross_radius; i++) {
+		Reverse(Point(i, centre_Y));
+	}
+
+	for (int j = centre_Y - cross_radius; j < centre_Y + cross_radius; j++) {
+		Reverse(Point(centre_X,j));
+	}
 }
 
-void TargetDisplay::DrawBox(Target& obj, Scalar color_box)
+void TargetDisplay::DrawBox(Target& obj, Scalar color)
 {
 	Rect box = obj.TInfo.getRectBox();
-	rectangle(*canvas, box, color_box);
+	rectangle(*canvas, box, color);
 }
 
-void TargetDisplay::DrawText(Target& obj, String name)
+void TargetDisplay::DrawText(Target& obj, String name, Scalar color)
 {
-	Scalar color_text = Scalar(0, 0, 255);
 	Rect box = obj.TInfo.getRectBox();
 	putText(*canvas,
 		name,
 		Point(box.x, box.y - 2),
 		FONT_HERSHEY_PLAIN, 1.0,
-		color_text);
+		color);
 }
 
-void TargetDisplay::SetColor(FList& fl, Scalar color)
+void TargetDisplay::Reverse(Point pt)
 {
-	for (auto it = fl.begin(); it != fl.end(); it++) {
-		canvas->at<Vec3b>(*it)[0] = (uchar)color.val[0];
-		canvas->at<Vec3b>(*it)[1] = (uchar)color.val[1];
-		canvas->at<Vec3b>(*it)[2] = (uchar)color.val[2];
-	}
+	canvas->at<Vec3b>(pt)[0] = 255 - canvas->at<Vec3b>(pt)[0];
+	canvas->at<Vec3b>(pt)[1] = 255 - canvas->at<Vec3b>(pt)[1];
+	canvas->at<Vec3b>(pt)[2] = 255 - canvas->at<Vec3b>(pt)[2];	
 }

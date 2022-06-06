@@ -50,8 +50,6 @@ public:
 	}
 
 	//在画布上显示处理过程
-	//	会将画布中目标内部颜色填充为 COLOR_INSIDE_8UC1
-	//	将边缘颜色填充为 COLOR_PERIPHERAL_8UC1
 	//	在目标外周画出边框和文字
 	void ShowTatget(void);
 

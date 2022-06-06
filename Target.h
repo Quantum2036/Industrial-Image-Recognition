@@ -27,7 +27,7 @@ public:
 	//目标的特征
 	TFeature TFea;
 
-	std::vector<Point> SUSAN_list;
+	FList SUSAN_list;
 
 private:
 
@@ -66,7 +66,7 @@ private:
 	bool IsHollow(void);
 
 	//计算角点数——SUSAN方法
-	uint CalCorners(void);
+	FList CalCorners(void);
 
 };
 

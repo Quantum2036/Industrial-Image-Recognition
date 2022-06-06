@@ -102,7 +102,7 @@ void CVApp::PostProcessing(void)
 	bgImgs.clear();
 #endif
 
-	Scan(ScanMode::SMode_random);
+	Scan();
 }
 
 //ÏÔÊ¾Êä³öº¯Êý
@@ -135,9 +135,9 @@ void CVApp::ShowTatget(void)
 
 	for (auto it = target.begin(); it != target.end(); it++) {
 		displayer.DrawList(it->SUSAN_list, Scalar(0, 0, 255));
-		displayer.DrawCross(*it);
 		displayer.DrawBox(*it);
 		displayer.DrawText(*it, pClassifier->classify(it->TFea.Struct_feature));
+		displayer.DrawCross(*it);
 	}
 
 }
