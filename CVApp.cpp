@@ -134,9 +134,10 @@ void CVApp::ShowTatget(void)
 	TargetDisplay displayer(&testImgs[3]);
 
 	for (auto it = target.begin(); it != target.end(); it++) {
-		displayer.DrawList(it->SUSAN_list, Scalar(0, 0, 255));
+		//displayer.DrawInside(*it, TargetDisplay::Random_Color());
+		displayer.DrawList(it->CalCorners(), Scalar(0, 0, 255));
 		displayer.DrawBox(*it);
-		displayer.DrawText(*it, pClassifier->classify(it->TFea.Struct_feature));
+		displayer.DrawText(*it, pClassifier->classify(it->GetFeature()));
 		displayer.DrawCross(*it);
 	}
 
@@ -291,65 +292,6 @@ Mat CVApp::MinusMat_3(void)
 
 void CVApp::ProBinarization(void)
 {
-	fprintf_s(stderr, "正在优化二值图... \n");
-	//ProBinarization_Subprocess_1();
-	ProBinarization_Morph();
-}
-
-void CVApp::ProBinarization_Subprocess_1(void)
-{
-	Point pt;
-	FList tlist;
-	uchar count = 0;
-
-	for (int i = 0; i < sizeImg.width; i++) {
-		for (int j = 0; j < sizeImg.height; j++) {
-			pt = Point(i, j);
-
-			ProBinarization_Subprocess_1_OnGrow(tlist, j, i, testImgs[2].at<uchar>(pt), count);
-			
-			if (count < MIN_TARGET_SIZE / 2) {
-				ProBinarization_Subprocess_1_ApplyList(tlist);
-			}
-
-			tlist.Empty();
-			count = 0;
-		}
-	}
-}
-
-void CVApp::ProBinarization_Subprocess_1_OnGrow(FList& tlist, uint nX, uint nY, uchar flag, uchar& count)
-{
-	if ( count < MIN_TARGET_SIZE && nX < (uint)sizeImg.height && nY < (uint)sizeImg.width ) {	//检查生长点是否超出图像
-
-		if (testImgs[2].at<uchar>(nX, nY) == flag && !tlist.IsExist(Point(nY, nX))) {
-			//(nX,nY)是内部点，继续生长
-			tlist.AddData(Point(nY, nX));
-			count++;
-
-			ProBinarization_Subprocess_1_OnGrow(tlist, nX - 1, nY, flag, count);
-			ProBinarization_Subprocess_1_OnGrow(tlist, nX + 1, nY, flag, count);
-			ProBinarization_Subprocess_1_OnGrow(tlist, nX, nY - 1, flag, count);
-			ProBinarization_Subprocess_1_OnGrow(tlist, nX, nY + 1, flag, count);
-		}
-
-	}
-}
-
-void CVApp::ProBinarization_Subprocess_1_ApplyList(FList& tlist)
-{
-	auto it = tlist.begin();
-	auto it_end = tlist.end();
-
-	uchar color = testImgs[2].at<uchar>(*it) == 0 ? 255 : 0;
-
-	for (; it != it_end; it++) {
-		testImgs[2].at<uchar>(*it) = color;
-	}
-}
-
-void CVApp::ProBinarization_Morph(void)
-{
 	Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
 	morphologyEx(testImgs[2], testImgs[2], MORPH_CLOSE, kernel);
 	morphologyEx(testImgs[2], testImgs[2], MORPH_OPEN, kernel);
@@ -460,11 +402,8 @@ void CVApp::Scan_Pixel(void)
 
 bool CVApp::IsExistTarget(Point pt)
 {
-	auto it = target.begin();
-	auto it_end = target.end();
-
-	for (; it != it_end; it++) {
-		if (it->TInfo.IsInside(pt)) {
+	for (auto it = target.begin(); it != target.end(); it++) {
+		if (it->IsInside(pt)) {
 			return true;
 		}
 	}

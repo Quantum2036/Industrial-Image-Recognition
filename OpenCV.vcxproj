@@ -146,11 +146,9 @@
     <ClCompile Include="CVApp.cpp" />
     <ClCompile Include="TargetDisplay.cpp" />
     <ClCompile Include="TClassifier.cpp" />
-    <ClCompile Include="TFeature.cpp" />
     <ClCompile Include="FList.cpp" />
     <ClCompile Include="OpenCV.cpp" />
     <ClCompile Include="Target.cpp" />
-    <ClCompile Include="TInformation.cpp" />
     <ClCompile Include="Trainer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,11 +156,9 @@
     <ClInclude Include="CVApp.h" />
     <ClInclude Include="TargetDisplay.h" />
     <ClInclude Include="TClassifier.h" />
-    <ClInclude Include="TFeature.h" />
     <ClInclude Include="FList.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Target.h" />
-    <ClInclude Include="TInformation.h" />
     <ClInclude Include="Trainer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

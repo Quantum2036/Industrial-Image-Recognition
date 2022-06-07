@@ -1,6 +1,6 @@
 #include "TClassifier.h"
 #include <io.h>
-#include "TFeature.h"
+#include "Target.h"
 #include <algorithm>
 
 String TClassifier::strfeatureName[] = {
@@ -9,7 +9,6 @@ String TClassifier::strfeatureName[] = {
 	"major_axis",
 	"minor_axis",
 	"isHollow",
-	"corners",
 	"rectangularity",
 	"consistency",
 	"eccentricity"
@@ -118,10 +117,10 @@ void TClassifier::AddNewClass(const feature& TFea, const String& name)
 
 String TClassifier::classify(const feature& TFea)
 {
-	fea_array feature_data = TFeature::Struct2Array(TFea);
+	fea_array feature_data = Target::Struct2Array(TFea);
 	std::vector<fea_array> feature_list(count);
 	for (size_t i = 0; i < count; i++) {
-		feature_list.at(i) = TFeature::Struct2Array(data.at(i));
+		feature_list.at(i) = Target::Struct2Array(data.at(i));
 	}
 
 	//得到待分类特征与记录特征的误差表
@@ -249,7 +248,6 @@ void TClassifier::ReadStructure(FILE* fp)
 	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.major_axis);
 	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.minor_axis);
 	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.isHollow);
-	fscanf_s(fp, "\t%s = %d;\n", cname, 256, &thisTFea.corners);
 	fscanf_s(fp, "\t%s = %lf;\n", cname, 256, &thisTFea.Rectangularity);
 	fscanf_s(fp, "\t%s = %lf;\n", cname, 256, &thisTFea.consistency);
 	fscanf_s(fp, "\t%s = %lf;\n", cname, 256, &thisTFea.eccentricity);
@@ -275,10 +273,9 @@ void TClassifier::WriteStructure(FILE* fp, size_t num)
 	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[2].c_str(), fea.major_axis);
 	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[3].c_str(), fea.minor_axis);
 	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[4].c_str(), fea.isHollow);
-	fprintf_s(fp, "\t%s = %d;\n", strfeatureName[5].c_str(), fea.corners);
-	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[6].c_str(), fea.Rectangularity);
-	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[7].c_str(), fea.consistency);
-	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[8].c_str(), fea.eccentricity);
+	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[5].c_str(), fea.Rectangularity);
+	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[6].c_str(), fea.consistency);
+	fprintf_s(fp, "\t%s = %lf;\n", strfeatureName[7].c_str(), fea.eccentricity);
 	fprintf_s(fp, "}\n\n");
 }
 

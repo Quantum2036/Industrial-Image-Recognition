@@ -1,5 +1,5 @@
 #include "TargetDisplay.h"
-
+#include <time.h>
 const Scalar TargetDisplay::red		= Scalar(0, 0, 255);
 const Scalar TargetDisplay::green	= Scalar(0, 255, 0);
 const Scalar TargetDisplay::orange	= Scalar(51, 153, 255);
@@ -17,7 +17,7 @@ TargetDisplay::TargetDisplay(Mat* pImgCanvas)
 	canvas = pImgCanvas;
 }
 
-void TargetDisplay::DrawList(FList& list, Scalar color)
+void TargetDisplay::DrawList(FList list, Scalar color)
 {
 	for (auto it = list.begin(); it != list.end(); it++) {
 		canvas->at<Vec3b>(*it)[0] = (uchar)color.val[0];
@@ -39,8 +39,8 @@ void TargetDisplay::DrawPeripheral(Target& obj, Scalar color_peripheral)
 void TargetDisplay::DrawCross(Target& obj)
 {
 	constexpr int cross_radius = 10;
-	int centre_X = obj.TFea.centre.x;
-	int centre_Y = obj.TFea.centre.y;
+	int centre_X = obj.centre.x;
+	int centre_Y = obj.centre.y;
 	
 	for (int i = centre_X - cross_radius; i < centre_X + cross_radius; i++) {
 		Reverse(Point(i, centre_Y));
@@ -53,13 +53,13 @@ void TargetDisplay::DrawCross(Target& obj)
 
 void TargetDisplay::DrawBox(Target& obj, Scalar color)
 {
-	Rect box = obj.TInfo.getRectBox();
+	Rect box = obj.rect_Box;
 	rectangle(*canvas, box, color);
 }
 
 void TargetDisplay::DrawText(Target& obj, String name, Scalar color)
 {
-	Rect box = obj.TInfo.getRectBox();
+	Rect box = obj.rect_Box;
 	putText(*canvas,
 		name,
 		Point(box.x, box.y - 2),
@@ -72,4 +72,16 @@ void TargetDisplay::Reverse(Point pt)
 	canvas->at<Vec3b>(pt)[0] = 255 - canvas->at<Vec3b>(pt)[0];
 	canvas->at<Vec3b>(pt)[1] = 255 - canvas->at<Vec3b>(pt)[1];
 	canvas->at<Vec3b>(pt)[2] = 255 - canvas->at<Vec3b>(pt)[2];	
+}
+
+Scalar TargetDisplay::Random_Color(void)
+{
+	//随机化
+	time_t curTime;
+	time(&curTime);
+	static int randNum = 0;
+	RNG rng = RNG(curTime + randNum);
+	randNum = (int)rng.uniform(0x00000000, 0xFFFFFFFF);		//为下次随机化添加随机因素
+
+	return Scalar(rng.uniform(0,255), rng.uniform(0, 255), rng.uniform(0, 255));
 }

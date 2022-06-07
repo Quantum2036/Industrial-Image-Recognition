@@ -24,13 +24,7 @@
     <ClCompile Include="CVApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TFeature.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="FList.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TInformation.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="TClassifier.cpp">
@@ -56,13 +50,7 @@
     <ClInclude Include="CVApp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="TFeature.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="FList.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TInformation.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="TClassifier.h">

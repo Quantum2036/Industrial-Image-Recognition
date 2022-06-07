@@ -11,15 +11,15 @@ int main(int argc, char** argv) {
 	Mat tImg  = imread(DATAFOLDER"test2.pgm", 0);	//读入测试图像
 
 
-	////训练得到分类器
-	//Trainer tran_1(bgImg, DATAFOLDER"nut", "pgm");
-	//tran_1.SaveTClassifier("nut", CLASSIFIER_PATH);
-	//
-	//Trainer tran_2(bgImg, DATAFOLDER"ring", "pgm");
-	//tran_2.SaveTClassifier("ring", CLASSIFIER_PATH);
-	//
-	//Trainer tran_3(bgImg, DATAFOLDER"screw", "pgm");
-	//tran_3.SaveTClassifier("screw", CLASSIFIER_PATH);
+	//训练得到分类器
+	/*Trainer tran_1(bgImg, DATAFOLDER"nut", "pgm");
+	tran_1.SaveTClassifier("nut", CLASSIFIER_PATH);
+	
+	Trainer tran_2(bgImg, DATAFOLDER"ring", "pgm");
+	tran_2.SaveTClassifier("ring", CLASSIFIER_PATH);
+	
+	Trainer tran_3(bgImg, DATAFOLDER"screw", "pgm");
+	tran_3.SaveTClassifier("screw", CLASSIFIER_PATH);*/
 
 
 	//使用保存的分类器

@@ -52,7 +52,7 @@ void Trainer::PushFeatureData(std::vector<Target>& target, String fileName)
 
 	for (; it != it_end; it++) {
 		if (it->GetTargetState() == TargetState::TS_Normal) {
-			feature_Data.AddNewData(it->TFea.Struct_feature, fileName);
+			feature_Data.AddNewData(it->GetFeature(), fileName);
 		}
 	}
 }
@@ -119,7 +119,7 @@ void Trainer::SaveData_d(String& Save_Full_Path, std::vector<feature>& feaIn)
 		exit(EXIT_FAILURE);
 	}
 
-	fprintf_s(fp, "面积\t周长\t最长轴\t最短轴\t中空\t角点数\t矩形度\t圆形度\t偏心率\n");
+	fprintf_s(fp, "面积\t周长\t最长轴\t最短轴\t中空\t矩形度\t圆形度\t偏心率\n");
 
 	auto it = feaIn.begin();
 	auto it_end = feaIn.end();
@@ -129,7 +129,6 @@ void Trainer::SaveData_d(String& Save_Full_Path, std::vector<feature>& feaIn)
 		fprintf_s(fp, "%d\t", it->major_axis);
 		fprintf_s(fp, "%d\t", it->minor_axis);
 		fprintf_s(fp, "%d\t", it->isHollow);
-		fprintf_s(fp, "%d\t", it->corners);
 		fprintf_s(fp, "%.3lf\t", it->Rectangularity);
 		fprintf_s(fp, "%.3lf\t", it->consistency);
 		fprintf_s(fp, "%.3lf\n", it->eccentricity);
@@ -273,7 +272,7 @@ feature Trainer::getAverageFeature(const std::vector<feature>& feas)
 	fea_array arr{};
 	fea_array arr_sum{};
 	for (auto it = feas.cbegin(); it != feas.cend(); it++) {
-		arr = TFeature::Struct2Array(*it);
+		arr = Target::Struct2Array(*it);
 
 		for (size_t i = 0; i < FEATURE_SIZE; i++) {
 			arr_sum[i] += arr[i];
@@ -284,5 +283,5 @@ feature Trainer::getAverageFeature(const std::vector<feature>& feas)
 		arr_sum[i] /= feas.size();
 	}
 
-	return TFeature::Array2Struct(arr_sum);
+	return Target::Array2Struct(arr_sum);
 }

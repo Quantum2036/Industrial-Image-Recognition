@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "TFeature.h"
+#include "Target.h"
 #include <vector>
 
 class TClassifier

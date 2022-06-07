@@ -95,15 +95,8 @@ private:
 	//	仅供在构造过程中有序调用
 	Mat MinusMat_3(void);
 
-	//优化分割后的二值图像，可改进
-	//	Subprocess_1: 先进行生长，去除掉所有面积小于 MIN_TARGRT_SIZE 的点
-	//	Subprocess_2: 然后进行形态学处理
-	//	仅供在构造过程中有序调用
+	//形态学处理分割后的二值图像
 	void ProBinarization(void);
-	void ProBinarization_Subprocess_1(void);
-	void ProBinarization_Subprocess_1_OnGrow(FList& tlist, uint nX, uint nY, uchar flag, uchar& count);
-	void ProBinarization_Subprocess_1_ApplyList(FList& tlist);
-	void ProBinarization_Morph(void);
 
 	//随机扫描
 	void Scan_Random(void);

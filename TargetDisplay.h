@@ -33,7 +33,7 @@ public:
 	/// </summary>
 	/// <param name="fl">要更改颜色的点的坐标集合</param>
 	/// <param name="color">要更改的颜色</param>
-	void DrawList(FList& list, Scalar color);
+	void DrawList(FList list, Scalar color);
 
 	/// <summary>
 	/// 用颜色填充目标的内部
@@ -70,6 +70,12 @@ public:
 	/// <param name="color">文字的颜色</param>
 	void DrawText(Target& obj, String name, Scalar color = red);
 
+	/// <summary>
+	/// 随机生成一种颜色
+	/// </summary>
+	/// <returns>生成的颜色</returns>
+	static Scalar Random_Color(void);
+
 private:
 
 	/// <summary>
@@ -78,6 +84,5 @@ private:
 	/// <param name="pt"></param>
 	/// <returns></returns>
 	void Reverse(Point pt);
-
 };
 
